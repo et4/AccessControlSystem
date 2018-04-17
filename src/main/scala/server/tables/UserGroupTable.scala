@@ -20,12 +20,3 @@ final class UserGroupTable(tag: Tag) extends Table[UserGroup](tag, "USERGROUP") 
 
   def * = (id, hasAccess).mapTo[UserGroup]
 }
-
-private object DbTest3 extends App {
-  val cards = TableQuery[UserGroupTable]
-  val db = Database.forConfig("db")
-  def exec[T](action: DBIO[T]): T =
-    Await.result(db.run(action), Duration(2, TimeUnit.SECONDS))
-
-  exec(cards.result)
-}

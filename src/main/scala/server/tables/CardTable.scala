@@ -26,12 +26,3 @@ final class CardTable(tag: Tag) extends Table[Card](tag, "CARD") {
 
   def * = (id, hasAccess, priorityAccess, groupId).mapTo[Card]
 }
-
-private object DbTest1 extends App {
-  val cards = TableQuery[CardTable]
-  val db = Database.forConfig("db")
-  def exec[T](action: DBIO[T]): T =
-    Await.result(db.run(action), Duration(2, TimeUnit.SECONDS))
-
-  exec(cards.result)
-}

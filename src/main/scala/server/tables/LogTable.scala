@@ -27,12 +27,3 @@ final class LogTable(tag: Tag) extends Table[Log](tag, "LOG") {
 
   def * = (cardId, dateTime, eventType, success).mapTo[Log]
 }
-
-private object DbTest2 extends App {
-  val cards = TableQuery[LogTable]
-  val db = Database.forConfig("db")
-  def exec[T](action: DBIO[T]): T =
-    Await.result(db.run(action), Duration(2, TimeUnit.SECONDS))
-
-  exec(cards.result)
-}
