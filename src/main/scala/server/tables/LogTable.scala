@@ -1,13 +1,9 @@
 package server.tables
 
 import java.sql.Time
-import java.util.concurrent.TimeUnit
 
 import slick.jdbc.H2Profile.api._
 import slick.lifted.Tag
-
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
 
 final case class Log(
                       cardId : Int,

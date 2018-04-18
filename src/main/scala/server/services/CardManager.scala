@@ -1,29 +1,56 @@
 package server.services
 
-import java.util.concurrent.TimeUnit
-
+import server.tables.{CardTable, UserGroupTable}
 import slick.jdbc.H2Profile.api._
-import server.tables.CardTable
 import slick.lifted.TableQuery
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import scala.concurrent.Future
 
-object CardManager {
+class CardManager(db: Database) {
+  val cards = TableQuery[CardTable]
+
+  //TODO: PriorityAccess
+
+  def hasAccess(cardId: Int): Future[Boolean] = {
+    db.run(cards
+      .filter(_.id === cardId.bind)
+      .joinLeft(TableQuery[UserGroupTable])
+      .on(_.groupId === _.id)
+      .map(t => (t._1.hasAccess, t._2.map(_.hasAccess)))
+      .result
+      .headOption)
+      .map {
+        case Some((_, Some(true))) => true
+        case Some((true, _)) => true
+        case _ => false
+      }
+  }
+
   def setAccess(cardId: Int, access: Boolean): Unit = {
-    val updateQuery = TableQuery[CardTable].filter(_.id == cardId).map(_.hasAccess).update(access)
-    Await.result(Database.forConfig("db").run(updateQuery), Duration(2, TimeUnit.SECONDS))
+    val updateQuery = cards.filter(_.id == cardId).map(_.hasAccess).update(access)
+    db.run(updateQuery)
   }
 
   def setHighPriorityAccess(cardId: Int, access: Boolean): Unit = ???
 
-  def setGroup(cardId: Int, groupId: Int): Unit = {
-    val updateQuery = TableQuery[CardTable].filter(_.id == cardId).map(_.groupId).update(groupId)
-    Await.result(Database.forConfig("db").run(updateQuery), Duration(2, TimeUnit.SECONDS))
+  def setGroupToCard(cardId: Int, groupId: Int): Unit = {
+    db.run(cards
+      .filter(_.id == cardId)
+      .map(_.groupId)
+      .update(Some(groupId)))
   }
 
-  def removeGroup(cardId: Int, groupId: Int): Unit = {
-    val updateQuery = TableQuery[CardTable].filter(_.id == cardId).map(_.groupId).update(null)
-    Await.result(Database.forConfig("db").run(updateQuery), Duration(2, TimeUnit.SECONDS))
+  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Unit = {
+    db.run(cards
+      .filter(_.id inSetBind cardIds)
+      .map(_.groupId)
+      .update(Some(groupId)))
+  }
+
+  def kickFromGroup(cardId: Int, groupId: Int): Unit = {
+    db.run(cards
+      .filter(_.id == cardId)
+      .map(_.groupId)
+      .update(None))
   }
 }
