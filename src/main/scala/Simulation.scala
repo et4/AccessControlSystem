@@ -1,4 +1,4 @@
-import java.util.Calendar
+import java.time.Instant
 
 import client._
 
@@ -9,17 +9,22 @@ object Simulation extends App {
 
   val cards: Seq[Card] = generateRandomCards(10)
 
-  cards.foreach(card => turn.getAccsess(card, Calendar.getInstance.getTime, EntranceEvent()))
+  cards.foreach(card => turn.requestAccess(card, Instant.now(), randomEvent))
 
   def generateRandomCards(amount: Int): Seq[Card] = {
     val MAX_ID = 1000000
-    for (id <- Seq.fill(amount)(Random.nextInt(MAX_ID))) yield new Card(id, getRandomPermission)
+    for (id <- Seq.fill(amount)(Random.nextInt(MAX_ID))) yield Card(id, randomPermission)
   }
 
-  def getRandomPermission: Permission = {
+  def randomPermission: Permission = {
     val randomValue = Random.nextInt(3)
-    if (randomValue == 0) PermissionDefault()
-    else if (randomValue == 1) PermissionPresent()
-    else PermissionAbsent()
+    if (randomValue == 0) PermissionDefault
+    else if (randomValue == 1) PermissionPresent
+    else PermissionAbsent
+  }
+
+  def randomEvent: TurnstileEvent = {
+    if (Random.nextInt(2) == 0) EntranceEvent()
+    else ExitEvent()
   }
 }
