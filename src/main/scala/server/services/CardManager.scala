@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CardManager(db: Database) {
+class CardManager(implicit db: Database) {
   val cards = TableQuery[CardTable]
 
   //TODO: PriorityAccess

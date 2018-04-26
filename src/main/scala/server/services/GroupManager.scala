@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GroupManager(db: Database, cardManager: CardManager) {
+class GroupManager(cardManager: CardManager)(implicit db: Database) {
   val groups = TableQuery[UserGroupTable]
 
   def addEmptyGroup(access: Boolean): Future[Int] = {

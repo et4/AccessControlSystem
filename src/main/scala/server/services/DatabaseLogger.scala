@@ -6,7 +6,7 @@ import server.tables.{Log, LogTable}
 import slick.jdbc.H2Profile.api._
 import slick.lifted.TableQuery
 
-class DatabaseLogger(db: Database) {
+class DatabaseLogger(implicit db: Database) {
   val logs = TableQuery[LogTable]
 
   def log(cardId: Int, time: Time, eventType: Boolean, success: Boolean): Unit = {
