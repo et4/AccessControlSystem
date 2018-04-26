@@ -13,5 +13,5 @@ final class UserGroupTable(tag: Tag) extends Table[UserGroup](tag, "USERGROUP") 
 
   def hasAccess = column[Boolean]("HASACCESS")
 
-  def * = (id, hasAccess).mapTo[UserGroup]
+  def * = (id.?, hasAccess) <> (UserGroup.tupled, UserGroup.unapply)
 }

@@ -6,6 +6,8 @@ import slick.lifted.TableQuery
 
 import scala.concurrent.Future
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class GroupManager(db: Database, cardManager: CardManager) {
   val groups = TableQuery[UserGroupTable]
 
@@ -20,5 +22,13 @@ class GroupManager(db: Database, cardManager: CardManager) {
     addEmptyGroup(access).onComplete(_.map(groupId => {
       cardManager.setGroupToCards(usersId, groupId)
     }).orElse(throw new Exception("RIP")))
+  }
+
+  def setGroupAccess(groupId: Int, access: Boolean): Unit = {
+    db.run(groups
+      .filter(_.id === groupId.bind)
+      .map(_.hasAccess)
+      .update(access)
+    )
   }
 }

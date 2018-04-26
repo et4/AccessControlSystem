@@ -6,6 +6,8 @@ import slick.lifted.TableQuery
 
 import scala.concurrent.Future
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class CardManager(db: Database) {
   val cards = TableQuery[CardTable]
 
@@ -27,7 +29,7 @@ class CardManager(db: Database) {
   }
 
   def setAccess(cardId: Int, access: Boolean): Unit = {
-    val updateQuery = cards.filter(_.id == cardId).map(_.hasAccess).update(access)
+    val updateQuery = cards.filter(_.id === cardId).map(_.hasAccess).update(access)
     db.run(updateQuery)
   }
 
@@ -35,7 +37,7 @@ class CardManager(db: Database) {
 
   def setGroupToCard(cardId: Int, groupId: Int): Unit = {
     db.run(cards
-      .filter(_.id == cardId)
+      .filter(_.id === cardId)
       .map(_.groupId)
       .update(Some(groupId)))
   }
@@ -49,7 +51,7 @@ class CardManager(db: Database) {
 
   def kickFromGroup(cardId: Int, groupId: Int): Unit = {
     db.run(cards
-      .filter(_.id == cardId)
+      .filter(_.id === cardId)
       .map(_.groupId)
       .update(None))
   }

@@ -19,5 +19,5 @@ final class CardTable(tag: Tag) extends Table[Card](tag, "CARD") {
 
   def groupId = column[Option[Int]]("GROUPID")
 
-  def * = (id, hasAccess, priorityAccess, groupId).mapTo[Card]
+  def * = (id.?, hasAccess, priorityAccess, groupId) <> (Card.tupled, Card.unapply)
 }

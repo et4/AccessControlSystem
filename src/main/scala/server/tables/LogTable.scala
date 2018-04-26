@@ -21,5 +21,5 @@ final class LogTable(tag: Tag) extends Table[Log](tag, "LOG") {
 
   def success = column[Boolean]("SUCCESS")
 
-  def * = (cardId, dateTime, eventType, success).mapTo[Log]
+  def * = (cardId, dateTime, eventType, success) <> (Log.tupled, Log.unapply)
 }
