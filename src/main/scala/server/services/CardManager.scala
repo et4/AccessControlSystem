@@ -19,7 +19,7 @@ class CardManager(implicit db: Database) {
         .joinLeft(TableQuery[GroupTable])
         .on(_._3 === _.id)
         .map(x => (x._1._1, x._1._2, x._2.map(_.hasAccess)))
-        .map { case (cardAccess, exception, groupAccess) => (_,_,_) }
+        .map { case (cardAccess, exception, groupAccess) => (cardAccess, exception, groupAccess) }
         .result
     )
   }
