@@ -28,18 +28,21 @@ class CardManager(implicit db: Database) {
     cardAccessData(cardId)
       .map(_.unzip3)
       .map(x => (x._1, x._2 zip x._3))
-      .map(z => {(z._1.head,
-          if (z._2.nonEmpty) {
-            Some(z._2.map {
-              case (Some("GRANTED"), _) => true
-              case (Some("FORBIDDEN"), _) => false
-              case (Some("DEFAULT"), Some(hasAccess)) => hasAccess
-              case _ => false
-            }.max)
-          } else {
-            None
-          })
-      })
+      .map(z =>
+        (z._1.head,
+         z._2.map {
+           case (Some("GRANTED"), _) => Some(true)
+           case (Some("FORBIDDEN"), _) => Some(false)
+           case (Some("DEFAULT"), Some(hasAccess)) => Some(hasAccess)
+           case (None, None) => None
+         }.reduce[Option[Boolean]] {
+           case (Some(a), Some(b)) => Some(a || b)
+           case (Some(a), None) => Some(a)
+           case (None, Some(b)) => Some(b)
+           case (None, None) => None
+         }
+        )
+      )
       .map {
         case (_, Some(access)) => access
         case (access, None) => access
@@ -58,3 +61,4 @@ class CardManager(implicit db: Database) {
 
   def kickFromGroup(cardId: Int, groupId: Int): Unit = ???
 }
+
