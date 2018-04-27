@@ -3,15 +3,15 @@ package server.tables
 import slick.jdbc.H2Profile.api._
 import slick.lifted.Tag
 
-final case class UserGroup(
+final case class Group(
                        id : Option[Int],
-                       hasAccess : Boolean
+                       hasAccess : Boolean,
                      )
 
-final class UserGroupTable(tag: Tag) extends Table[UserGroup](tag, "USERGROUP") {
+final class GroupTable(tag: Tag) extends Table[Group](tag, "GROUP") {
   def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
 
   def hasAccess = column[Boolean]("HASACCESS")
 
-  def * = (id.?, hasAccess) <> (UserGroup.tupled, UserGroup.unapply)
+  def * = (id.?, hasAccess) <> (Group.tupled, Group.unapply)
 }

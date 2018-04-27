@@ -1,27 +1,21 @@
 package server.services
 
-import server.tables.{UserGroup, UserGroupTable}
+import server.tables.{Group, GroupTable}
 import slick.jdbc.H2Profile.api._
 import slick.lifted.TableQuery
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 class GroupManager(cardManager: CardManager)(implicit db: Database) {
-  val groups = TableQuery[UserGroupTable]
+  val groups = TableQuery[GroupTable]
 
   def addEmptyGroup(access: Boolean): Future[Int] = {
-
-    val actionWithGroupId = (groups returning groups.map(_.id)) += UserGroup(None, access)
-
-    db.run(actionWithGroupId)
+    db.run((groups returning groups.map(_.id)) += Group(None, access))
   }
 
-  def addGroup(usersId: Seq[Int], access: Boolean): Unit = {
-    addEmptyGroup(access).onComplete(_.map(groupId => {
-      cardManager.setGroupToCards(usersId, groupId)
-    }).orElse(throw new Exception("RIP")))
+  def addGroup(cardsId: Seq[Int], access: Boolean): Unit = {
+    addEmptyGroup(access).map(groupId => cardManager.setGroupToCards(cardsId, groupId))
   }
 
   def setGroupAccess(groupId: Int, access: Boolean): Unit = {
