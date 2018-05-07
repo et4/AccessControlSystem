@@ -13,7 +13,7 @@ object Simulation extends App {
 
   def generateRandomCards(amount: Int): Seq[Card] = {
     val MAX_ID = 1000000
-    for (id <- Seq.fill(amount)(Random.nextInt(MAX_ID))) yield new Card(id, getRandomPermission)
+    for (id <- Seq.fill(amount)(Random.nextInt(MAX_ID))) yield Card(id, getRandomPermission)
   }
 
   def getRandomPermission: Permission = {

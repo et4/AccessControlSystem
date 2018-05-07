@@ -1,3 +1,3 @@
 package client
 
-class Card(val cardId: Int, var permission: Permission)
+case class Card(cardId: Int, permission: Permission)
