@@ -14,10 +14,11 @@ import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 class Turnstile {
-  def getAccsess(card: Card, date: Date = Calendar.getInstance.getTime, eventType: TurnstileEvent): Unit = {
+  def requestAccess(card: Card, date: Date = Calendar.getInstance.getTime, eventType: TurnstileEvent): Unit = {
     implicit val system: ActorSystem = ActorSystem()
     implicit val materializer: ActorMaterializer = ActorMaterializer()
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+
     import scala.concurrent.duration._
     val timeout = 300.millis
 

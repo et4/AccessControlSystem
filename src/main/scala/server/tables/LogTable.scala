@@ -10,7 +10,7 @@ final case class Log(
                       dateTime : Time,
                       eventType : Boolean,
                       success : Boolean
-                     )
+                    )
 
 final class LogTable(tag: Tag) extends Table[Log](tag, "LOG") {
   def cardId = column[Int]("CARDID")
@@ -22,4 +22,6 @@ final class LogTable(tag: Tag) extends Table[Log](tag, "LOG") {
   def success = column[Boolean]("SUCCESS")
 
   def * = (cardId, dateTime, eventType, success) <> (Log.tupled, Log.unapply)
+
+  def card = foreignKey("fk_Log_cardId", cardId, TableQuery[CardTable])(_.id)
 }
