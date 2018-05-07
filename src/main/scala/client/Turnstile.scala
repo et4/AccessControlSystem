@@ -1,20 +1,18 @@
 package client
 
-import java.util.{Calendar, Date}
+import java.time.Instant
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.Uri.Query
-import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
 class Turnstile {
-  def requestAccess(card: Card, date: Date = Calendar.getInstance.getTime, eventType: TurnstileEvent): Unit = {
+  def requestAccess(card: Card, date: Instant = Instant.now(), eventType: TurnstileEvent): Unit = {
     implicit val system: ActorSystem = ActorSystem()
     implicit val materializer: ActorMaterializer = ActorMaterializer()
     implicit val executionContext: ExecutionContextExecutor = system.dispatcher

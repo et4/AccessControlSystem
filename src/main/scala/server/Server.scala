@@ -41,7 +41,7 @@ object Server extends App {
         get {
           parameters('cardId.as[String]) { (cardId) =>
             complete {
-              cardManager.setAccess(cardId.toInt, true)
+              cardManager.setIndividualAccess(cardId.toInt, true)
               HttpResponse(StatusCodes.OK)
             }
           }
@@ -51,7 +51,7 @@ object Server extends App {
         get {
           parameters('cardId.as[String]) { (cardId) =>
             complete {
-              cardManager.setAccess(cardId.toInt, false)
+              cardManager.setIndividualAccess(cardId.toInt, false)
               HttpResponse(StatusCodes.OK)
             }
           }
@@ -72,6 +72,7 @@ object Server extends App {
           parameters('groupId.as[String]) { (groupId) =>
             complete {
               groupManager.setGroupAccess(groupId.toInt, false)
+              HttpResponse(StatusCodes.OK)
             }
           }
         }
