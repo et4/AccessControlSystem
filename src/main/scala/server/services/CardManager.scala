@@ -52,13 +52,5 @@ class CardManager(implicit db: Database) {
   def setIndividualAccess(cardId: Int, access: Boolean): Future[Int] = {
     db.run(cards.filter(_.id === cardId).map(_.hasAccess).update(access))
   }
-
-  def setExceptionalAccess(cardId: Int, groupId: Int, access: Boolean): Unit = ???
-
-  def setGroupToCard(cardId: Int, groupId: Int): Unit = ???
-
-  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Unit = ???
-
-  def kickFromGroup(cardId: Int, groupId: Int): Unit = ???
 }
 
