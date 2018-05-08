@@ -2,9 +2,11 @@ package server.services
 
 import java.sql.Time
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import server.tables.{Log, LogTable}
 import slick.jdbc.H2Profile.api._
 import slick.lifted.TableQuery
+
 
 import scala.concurrent.Future
 

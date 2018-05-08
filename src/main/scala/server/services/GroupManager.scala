@@ -42,16 +42,15 @@ class GroupManager(cardManager: CardManager)(implicit db: Database) {
     db.run(groupAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT")))
   }
 
-  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Future[Seq[Int]] = {
-    db.run(
-      DBIO.sequence(
-        cardIds.map(
-          cardId => groupAccess.insertOrUpdate(
-            GroupAccess(cardId, groupId, "DEFAULT")
-          )
-        )
-      )
-    )
+  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Seq[Future[Int]] = {
+    cardIds.map(setGroupToCard(_, groupId))
+//    db.run(
+//      DBIO.sequence(
+//        cardIds.map {
+//          cardId => groupAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT"))
+//        }
+//      )
+//    )
   }
 
   def kickFromGroup(cardId: Int, groupId: Int): Future[Int] = {
