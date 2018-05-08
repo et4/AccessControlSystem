@@ -31,4 +31,16 @@ class DatabaseLogger(implicit db: Database) {
   def getLogsByCard(cardId: Int): Future[Seq[Log]] = {
     db.run(logs.filter(_.cardId === cardId.bind).result)
   }
+
+  def getAnomalies(fromDateTime: Time, toDateTime: Time, times: Int): Future[Iterable[Int]] = {
+    db.run(logs.filter(_.success === false.bind)
+      .filter(date => fromDateTime.bind <= date.dateTime && date.dateTime <= toDateTime.bind).result
+    )
+      .map(_
+        .groupBy(_.cardId)
+        .mapValues(_.size)
+        .filter(_._2 >= times)
+        .keys
+      )
+  }
 }
