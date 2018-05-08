@@ -8,7 +8,7 @@ import slick.lifted.Tag
 final case class Log(
                       cardId : Int,
                       dateTime : Time,
-                      eventType : Boolean,
+                      eventType : String,
                       success : Boolean
                      )
 
@@ -17,7 +17,7 @@ final class LogTable(tag: Tag) extends Table[Log](tag, "LOG") {
 
   def dateTime = column[Time]("DATETIME")
 
-  def eventType = column[Boolean]("EVENTTYPE")
+  def eventType = column[String]("EVENTTYPE")
 
   def success = column[Boolean]("SUCCESS")
 
