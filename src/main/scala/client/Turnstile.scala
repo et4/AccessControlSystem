@@ -22,10 +22,10 @@ class Turnstile {
 
     val responseFuture: Future[HttpResponse] =
       Http().singleRequest(HttpRequest(HttpMethods.GET,
-        Uri("http://localhost:8182/open").withQuery(Query(
+        Uri("http://localhost:8182/action").withQuery(Query(
           "id" -> card.cardId.toString,
           "date" -> date.toString,
-          "event" -> getEventType(eventType)))))
+          "event" -> eventTypeToString(eventType)))))
 
     responseFuture.onComplete {
       case Success(res) =>
@@ -37,7 +37,7 @@ class Turnstile {
     }
   }
 
-  def getEventType(eventType: TurnstileEvent): String = {
+  def eventTypeToString(eventType: TurnstileEvent): String = {
     eventType match {
       case event: EntranceEvent => event.eventName
       case event: ExitEvent => event.eventName

@@ -22,70 +22,73 @@ object Server extends App {
   implicit val db: H2Profile.backend.Database = Database.forConfig("db")
 
   val cardManager: CardManager = new CardManager()
-  val groupManager: GroupManager = new GroupManager()
+  val groupManager: GroupManager = new GroupManager(cardManager)
   val serverSource = Http().bind(interface = "localhost", port = 8182)
 
   val route = {
-    path("open") {
+    path("action") {
       get {
-        parameters('id.as[String], 'date.as[String], 'event.as[String]) { (id, date, event) =>
+        parameters('cardId.as[String], 'date.as[String], 'event.as[String]) { (cardId, date, event) =>
           complete {
-            if (id.toInt < 500000)
+//            Await.result()
+            if (cardManager.hasAccess(cardId.toInt).onComplete().value.get.get)
               HttpResponse(StatusCodes.OK)
-            else HttpResponse(StatusCodes.Forbidden)
+            else
+              HttpResponse(StatusCodes.Forbidden)
+          }
+        }
+      }
+    }
+  } ~
+    path("addCardPermission") {
+      get {
+        parameters('cardId.as[String]) { (cardId) =>
+          complete {
+            cardManager.setIndividualAccess(cardId.toInt, true)
+            HttpResponse(StatusCodes.OK)
           }
         }
       }
     } ~
-      path("addCardPermission") {
-        get {
-          parameters('cardId.as[String]) { (cardId) =>
-            complete {
-              cardManager.setIndividualAccess(cardId.toInt, true)
-              HttpResponse(StatusCodes.OK)
-            }
-          }
-        }
-      } ~
-      path("deleteCardPermission") {
-        get {
-          parameters('cardId.as[String]) { (cardId) =>
-            complete {
-              cardManager.setIndividualAccess(cardId.toInt, false)
-              HttpResponse(StatusCodes.OK)
-            }
-          }
-        }
-      } ~
-      path("addGroupPermission") {
-        get {
-          parameters('groupId.as[String]) { (groupId) =>
-            complete {
-              groupManager.setGroupAccess(groupId.toInt, true)
-              HttpResponse(StatusCodes.OK)
-            }
-          }
-        }
-      } ~
-      path("addGroupExclusion") {
-        get {
-          parameters('groupId.as[String]) { (groupId) =>
-            complete {
-              groupManager.setGroupAccess(groupId.toInt, false)
-              HttpResponse(StatusCodes.OK)
-            }
+    path("deleteCardPermission") {
+      get {
+        parameters('cardId.as[String]) { (cardId) =>
+          complete {
+            cardManager.setIndividualAccess(cardId.toInt, false)
+            HttpResponse(StatusCodes.OK)
           }
         }
       }
-  }
+    } ~
+    path("addGroupPermission") {
+      get {
+        parameters('groupId.as[String]) { (groupId) =>
+          complete {
+            groupManager.setGroupAccess(groupId.toInt, true)
+            HttpResponse(StatusCodes.OK)
+          }
+        }
+      }
+    } ~
+    path("addGroupExclusion") {
+      get {
+        parameters('groupId.as[String]) { (groupId) =>
+          complete {
+            groupManager.setGroupAccess(groupId.toInt, false)
+            HttpResponse(StatusCodes.OK)
+          }
+        }
+      }
+    }
+}
 
 
-  val bindingFuture = Http().bindAndHandle(route, "localhost", 8182)
+val bindingFuture = Http ().bindAndHandle (route, "localhost", 8182)
 
-  println("Server online at http://localhost:8080/")
-  println("Press RETURN to stop...")
-  StdIn.readLine() // let it run until user presses return
-  bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
-    .onComplete(_ => system.terminate()) // and shutdown when done
+println ("Server online at http://localhost:8080/")
+println ("Press RETURN to stop...")
+StdIn.readLine () // let it run until user presses return
+bindingFuture
+.flatMap (_.unbind () ) // trigger unbinding from the port
+.onComplete (_ => system.terminate () ) // and shutdown when done
 }
