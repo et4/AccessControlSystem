@@ -30,8 +30,7 @@ object Server extends App {
       get {
         parameters('cardId.as[String], 'date.as[String], 'event.as[String]) { (cardId, date, event) =>
           complete {
-//            Await.result()
-            if (cardManager.hasAccess(cardId.toInt).onComplete().value.get.get)
+            if (Await.result(cardManager.hasAccess(cardId.toInt), Duration.Inf))
               HttpResponse(StatusCodes.OK)
             else
               HttpResponse(StatusCodes.Forbidden)
@@ -80,15 +79,14 @@ object Server extends App {
         }
       }
     }
-}
 
 
-val bindingFuture = Http ().bindAndHandle (route, "localhost", 8182)
+  val bindingFuture = Http().bindAndHandle(route, "localhost", 8182)
 
-println ("Server online at http://localhost:8080/")
-println ("Press RETURN to stop...")
-StdIn.readLine () // let it run until user presses return
-bindingFuture
-.flatMap (_.unbind () ) // trigger unbinding from the port
-.onComplete (_ => system.terminate () ) // and shutdown when done
+  println("Server online at http://localhost:8080/")
+  println("Press RETURN to stop...")
+  StdIn.readLine() // let it run until user presses return
+  bindingFuture
+    .flatMap(_.unbind()) // trigger unbinding from the port
+    .onComplete(_ => system.terminate()) // and shutdown when done
 }
