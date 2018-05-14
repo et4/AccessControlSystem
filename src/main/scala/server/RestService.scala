@@ -1,24 +1,26 @@
 package server
 
+import java.util.concurrent.ConcurrentLinkedDeque
+
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import client.Card
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.HttpMethods._
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
-import akka.stream.scaladsl.Sink
+import slick.jdbc.H2Profile.api._
 import server.services.{CardManager, GroupManager}
 import slick.jdbc.H2Profile
-import slick.jdbc.H2Profile.api._
-
+import scala.concurrent.{Await, ExecutionContextExecutor}
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
-import scala.io.StdIn
 
-object Server extends App {
-  implicit val system: ActorSystem = ActorSystem()
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+
+trait RestService {
+  implicit val system: ActorSystem
+  implicit val materializer: ActorMaterializer
+  //  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   implicit val db: H2Profile.backend.Database = Database.forConfig("db")
 
   val cardManager: CardManager = new CardManager()
@@ -78,15 +80,12 @@ object Server extends App {
           }
         }
       }
+    } ~
+    path("forTest") {
+      get {
+        complete {
+          HttpResponse(StatusCodes.Accepted)
+        }
+      }
     }
-
-
-  val bindingFuture = Http().bindAndHandle(route, "localhost", 8182)
-
-  println("Server online at http://localhost:8080/")
-  println("Press RETURN to stop...")
-  StdIn.readLine() // let it run until user presses return
-  bindingFuture
-    .flatMap(_.unbind()) // trigger unbinding from the port
-    .onComplete(_ => system.terminate()) // and shutdown when done
 }
