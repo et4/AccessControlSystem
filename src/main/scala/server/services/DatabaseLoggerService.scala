@@ -2,11 +2,9 @@ package server.services
 
 import java.sql.Time
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import server.tables.{Log, LogTable}
 import slick.jdbc.H2Profile.api._
 import slick.lifted.TableQuery
-
 
 import scala.concurrent.Future
 
@@ -35,14 +33,15 @@ class DatabaseLogger(implicit db: Database) {
   }
 
   def getAnomalies(fromDateTime: Time, toDateTime: Time, times: Int): Future[Iterable[Int]] = {
-    db.run(logs.filter(_.success === false.bind)
-      .filter(date => fromDateTime.bind <= date.dateTime && date.dateTime <= toDateTime.bind).result
-    )
-      .map(_
+    db.run(
+      logs
+        .filter(_.success === false)
+        .filter(date => fromDateTime.bind <= date.dateTime && date.dateTime <= toDateTime.bind)
         .groupBy(_.cardId)
-        .mapValues(_.size)
+        .map { case (cardId, events) => (cardId, events.length) }
         .filter(_._2 >= times)
-        .keys
-      )
+        .map(_._1)
+        .result
+    )
   }
 }

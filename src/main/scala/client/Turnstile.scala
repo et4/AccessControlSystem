@@ -23,7 +23,7 @@ class Turnstile {
     val responseFuture: Future[HttpResponse] =
       Http().singleRequest(HttpRequest(HttpMethods.GET,
         Uri("http://localhost:8182/action").withQuery(Query(
-          "id" -> card.cardId.toString,
+          "cardId" -> card.cardId.toString,
           "date" -> date.toString,
           "event" -> eventTypeToString(eventType)))))
 

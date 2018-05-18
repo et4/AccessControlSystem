@@ -1,14 +1,14 @@
 package server
 import slick.jdbc.H2Profile.backend.Database
-import server.services.{CardManager, DatabaseLogger, GroupManager}
+import server.services.{CardManagerService, DatabaseLogger, GroupManagerService}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Kek extends App {
   implicit val db = Database.forConfig("db")
 
-  private val manager = new CardManager()
+  private val manager = new CardManagerService()
   private val logger = new DatabaseLogger()
-  private val manager1 = new GroupManager(manager)
+  private val manager1 = new GroupManagerService(manager)
 
   manager.hasAccess(1).andThen({case x => Thread.sleep(4000); println("1: " + x.get)})
   manager.hasAccess(2).andThen({case x => Thread.sleep(4000); println("2: " + x.get)})
