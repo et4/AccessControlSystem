@@ -2,10 +2,8 @@ package server.services
 
 import java.sql.Time
 
-import server.tables.{Log, LogTable}
-import slick.jdbc.H2Profile.api._
-import slick.lifted.TableQuery
-
+import server.models.LogModel
+import slick.jdbc.{JdbcBackend, JdbcProfile}
 import scala.concurrent.Future
 
 sealed trait QueryFilter
@@ -13,7 +11,7 @@ case object In extends QueryFilter
 case object Out extends QueryFilter
 case object All extends QueryFilter
 
-trait LoggerService {
+trait LoggerService extends LogModel {
   def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int]
 
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]]
@@ -23,8 +21,9 @@ trait LoggerService {
   def getAnomalies(fromDateTime: Time, toDateTime: Time, times: Int): Future[Iterable[Int]]
 }
 
-class DatabaseLoggerServiceImpl(implicit db: Database) extends LoggerService {
-  val logs = TableQuery[LogTable]
+class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database) extends LoggerService {
+
+  import profile.api._
 
   def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int] = {
     db.run(logs += Log(cardId, time, eventType, success))

@@ -1,8 +1,8 @@
 package server.services
 
-import server.tables._
-import slick.jdbc.H2Profile.api._
-import slick.lifted.TableQuery
+import server.models._
+
+import slick.jdbc.{JdbcProfile, JdbcBackend}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -13,14 +13,17 @@ trait CardService {
   def setIndividualAccess(cardId: Int, access: Boolean): Future[Int]
 }
 
-class CardServiceImpl(implicit db: Database) extends CardService {
-  val cards = TableQuery[CardTable]
+class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
+  extends CardService with CardModel with GroupAccessModel with GroupModel {
+
+  import profile.api._
 
   /**
     * @return sequence of tuples - (Individual access, Exceptional access, Group Access)
     */
   private def cardAccessData(cardId: Int): Future[Seq[(Boolean, Option[String], Option[Boolean])]] = {
-    db.run(cards
+    db.run(
+      cards
         .filter(_.id === cardId.bind)
         .joinLeft(TableQuery[GroupAccessTable])
         .on(_.id === _.cardId)
@@ -62,4 +65,3 @@ class CardServiceImpl(implicit db: Database) extends CardService {
     db.run(cards.filter(_.id === cardId).map(_.hasAccess).update(access))
   }
 }
-

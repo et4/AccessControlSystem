@@ -1,8 +1,7 @@
 package server.services
 
-import server.tables.{Group, GroupAccess, GroupAccessTable, GroupTable}
-import slick.jdbc.H2Profile.api._
-import slick.lifted.TableQuery
+import server.models._
+import slick.jdbc.{JdbcBackend, JdbcProfile}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -23,9 +22,10 @@ trait GroupService {
   def setGroupToCards     (cardsId: Seq[Int], groupId: Int): Future[Seq[Int]]
 }
 
-class GroupServiceImpl(implicit db: Database) extends GroupService {
-  val groups = TableQuery[GroupTable]
-  val groupAccess = TableQuery[GroupAccessTable]
+class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
+  extends GroupService with GroupModel with GroupAccessModel {
+
+  import profile.api._
 
   def addEmptyGroup(access: Boolean): Future[Int] = {
     db.run((groups returning groups.map(_.id)) += Group(None, access))
@@ -46,7 +46,7 @@ class GroupServiceImpl(implicit db: Database) extends GroupService {
 
   def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[Int] = {
     db.run(
-      groupAccess
+      groupsAccess
         .filter(_.groupId === groupId.bind)
         .filter(_.cardId === cardId.bind)
         .map(_.access)
@@ -55,23 +55,16 @@ class GroupServiceImpl(implicit db: Database) extends GroupService {
   }
 
   def setGroupToCard(cardId: Int, groupId: Int): Future[Int] = {
-    db.run(groupAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT")))
+    db.run(groupsAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT")))
   }
 
   def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[Int]] = {
     Future.traverse(cardsId)(setGroupToCard(_, groupId))
-//    db.run(
-//      DBIO.sequence(
-//        cardIds.map {
-//          cardId => groupAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT"))
-//        }
-//      )
-//    )
   }
 
   def kickFromGroup(cardId: Int, groupId: Int): Future[Int] = {
     db.run(
-      groupAccess
+      groupsAccess
         .filter(_.groupId === groupId.bind)
         .filter(_.cardId === cardId.bind)
         .delete
