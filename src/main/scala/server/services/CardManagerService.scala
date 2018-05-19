@@ -7,7 +7,7 @@ import slick.lifted.TableQuery
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CardManager(implicit db: Database) {
+class CardManagerService(implicit db: Database) {
   val cards = TableQuery[CardTable]
 
   private def cardAccessData(cardId: Int): Future[Seq[(Boolean, Option[String], Option[Boolean])]] = {

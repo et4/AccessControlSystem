@@ -9,7 +9,7 @@ object Simulation extends App {
 
   val cards: Seq[Card] = generateRandomCards(10)
 
-  cards.foreach(card => turn.requestAccess(card, Instant.now(), randomEvent))
+  (cards :+ Card(1, PermissionPresent)).foreach(card => turn.requestAccess(card, Instant.now(), randomEvent))
 
   def generateRandomCards(amount: Int): Seq[Card] = {
     val MAX_ID = 1000000
