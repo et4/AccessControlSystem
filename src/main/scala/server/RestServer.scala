@@ -3,13 +3,11 @@ package server
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.stream.ActorMaterializer
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import client.Turnstile
+import akka.stream.ActorMaterializer
 import server.controllers.{PermissionsController, TurnstileController}
-import server.services.{CardServiceImpl, GroupServiceImpl}
-import slick.jdbc.H2Profile
+import server.services.{CardService, CardServiceImpl, GroupService, GroupServiceImpl}
 import slick.jdbc.H2Profile
 import slick.jdbc.H2Profile.api._
 
@@ -29,9 +27,12 @@ object RestServer {
     implicit val materializer: ActorMaterializer = ActorMaterializer()
 
     implicit val db: H2Profile.backend.Database = Database.forConfig("db")
-    val cardManager: CardServiceImpl = new CardServiceImpl()
-    val permissionsController = new PermissionsController(cardManager)
-    val turnstileController = new TurnstileController(cardManager)
+    val cardService: CardService = new CardServiceImpl()
+    val groupService: GroupService = new GroupServiceImpl()
+
+    val permissionsController = new PermissionsController(cardService, groupService)
+    val turnstileController = new TurnstileController(cardService)
+
     val server = new RestServer()
     server.startServer(permissionsController.routes ~ turnstileController.routes, "localhost", 8182)
   }

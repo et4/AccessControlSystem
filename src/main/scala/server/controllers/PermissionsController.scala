@@ -3,10 +3,10 @@ package server.controllers
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, _}
 import akka.http.scaladsl.server.Route
-import server.services.{CardServiceImpl, GroupService}
+import server.services.{CardService, GroupService}
 
 
-class PermissionsController(cardManager: CardServiceImpl, groupService: GroupService) extends Controller {
+class PermissionsController(cardManager: CardService, groupService: GroupService) extends Controller {
   val routes: Route = {
     path("setIndividualAccess") {
       get {

@@ -2,18 +2,12 @@ package server.controllers
 
 import java.time.Instant
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.{Http, server}
+import _root_.server.services.CardService
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Source
-import _root_.server.services.{CardServiceImpl, GroupServiceImpl}
 import akka.http.scaladsl.server.Route
-import slick.jdbc.H2Profile
 
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
+import scala.concurrent.Await
 
 
 object TurnstileController {
@@ -22,7 +16,7 @@ object TurnstileController {
 
 }
 
-class TurnstileController(cardManager: CardServiceImpl)(implicit val db: H2Profile.backend.Database)
+class TurnstileController(cardManager: CardService)
   extends Controller {
 
   //  val serverSource: Source[Http.IncomingConnection, Future[Http.ServerBinding]] =
