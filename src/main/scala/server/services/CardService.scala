@@ -7,7 +7,9 @@ import slick.lifted.TableQuery
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class CardManagerService(implicit db: Database) {
+trait CardService {}
+
+class CardServiceImpl(implicit db: Database) {
   val cards = TableQuery[CardTable]
 
   private def cardAccessData(cardId: Int): Future[Seq[(Boolean, Option[String], Option[Boolean])]] = {
@@ -15,7 +17,7 @@ class CardManagerService(implicit db: Database) {
         .filter(_.id === cardId.bind)
         .joinLeft(TableQuery[GroupAccessTable])
         .on(_.id === _.cardId)
-        .map{ case (card, gAccess) => (card.hasAccess, gAccess.map(_.access), gAccess.map(_.groupId)) }
+        .map { case (card, gAccess) => (card.hasAccess, gAccess.map(_.access), gAccess.map(_.groupId)) }
         .joinLeft(TableQuery[GroupTable])
         .on(_._3 === _.id)
         .map(x => (x._1._1, x._1._2, x._2.map(_.hasAccess)))

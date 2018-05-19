@@ -7,7 +7,9 @@ import slick.lifted.TableQuery
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class GroupManagerService(cardManager: CardManagerService)(implicit db: Database) {
+trait GroupService {}
+
+class GroupServiceImpl(cardManager: CardServiceImpl)(implicit db: Database) {
   val groups = TableQuery[GroupTable]
   val groupAccess = TableQuery[GroupAccessTable]
 

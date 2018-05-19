@@ -8,7 +8,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.Source
-import _root_.server.services.{CardManagerService, GroupManagerService}
+import _root_.server.services.{CardServiceImpl, GroupServiceImpl}
 import akka.http.scaladsl.server.Route
 import slick.jdbc.H2Profile
 
@@ -22,7 +22,7 @@ object TurnstileController {
 
 }
 
-class TurnstileController(cardManager: CardManagerService)(implicit val db: H2Profile.backend.Database)
+class TurnstileController(cardManager: CardServiceImpl)(implicit val db: H2Profile.backend.Database)
   extends Controller {
 
   //  val serverSource: Source[Http.IncomingConnection, Future[Http.ServerBinding]] =

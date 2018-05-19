@@ -13,7 +13,9 @@ case object In extends QueryFilter
 case object Out extends QueryFilter
 case object All extends QueryFilter
 
-class DatabaseLogger(implicit db: Database) {
+trait LoggerService {}
+
+class DatabaseLoggerServiceImpl(implicit db: Database) {
   val logs = TableQuery[LogTable]
 
   def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int] = {
