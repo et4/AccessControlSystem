@@ -9,6 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait CardService {
   def hasAccess(cardId: Int): Future[Boolean]
+
   def setIndividualAccess(cardId: Int, access: Boolean): Future[Int]
 }
 
