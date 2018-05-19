@@ -7,9 +7,17 @@ import slick.lifted.TableQuery
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait GroupService {}
+trait GroupService {
+  def addEmptyGroup(access: Boolean): Future[Int]
+  def addGroup(cardsId: Seq[Int], access: Boolean): Future[Seq[Int]]
+  def setGroupAccess(groupId: Int, access: Boolean): Future[Int]
+  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[Int]
+  def setGroupToCard(cardId: Int, groupId: Int): Future[Int]
+  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Future[Seq[Int]]
+  def kickFromGroup(cardId: Int, groupId: Int): Future[Int]
+}
 
-class GroupServiceImpl(cardManager: CardServiceImpl)(implicit db: Database) {
+class GroupServiceImpl(implicit db: Database) extends GroupService {
   val groups = TableQuery[GroupTable]
   val groupAccess = TableQuery[GroupAccessTable]
 
@@ -17,11 +25,11 @@ class GroupServiceImpl(cardManager: CardServiceImpl)(implicit db: Database) {
     db.run((groups returning groups.map(_.id)) += Group(None, access))
   }
 
-  def addGroup(cardsId: Seq[Int], access: Boolean): Unit = {
-    addEmptyGroup(access).map(groupId => setGroupToCards(cardsId, groupId))
+  def addGroup(cardsId: Seq[Int], access: Boolean): Future[Seq[Int]] = {
+    addEmptyGroup(access).map(groupId => setGroupToCards(cardsId, groupId)).flatten
   }
 
-  def setGroupAccess(groupId: Int, access: Boolean): Unit = {
+  def setGroupAccess(groupId: Int, access: Boolean): Future[Int] = {
     db.run(
       groups
       .filter(_.id === groupId.bind)
@@ -30,7 +38,7 @@ class GroupServiceImpl(cardManager: CardServiceImpl)(implicit db: Database) {
     )
   }
 
-  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Unit = {
+  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[Int] = {
     db.run(
       groupAccess
         .filter(_.groupId === groupId.bind)
@@ -44,8 +52,8 @@ class GroupServiceImpl(cardManager: CardServiceImpl)(implicit db: Database) {
     db.run(groupAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT")))
   }
 
-  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Seq[Future[Int]] = {
-    cardIds.map(setGroupToCard(_, groupId))
+  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Future[Seq[Int]] = {
+    Future.traverse(cardIds)(setGroupToCard(_, groupId))
 //    db.run(
 //      DBIO.sequence(
 //        cardIds.map {

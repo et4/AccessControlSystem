@@ -13,9 +13,14 @@ case object In extends QueryFilter
 case object Out extends QueryFilter
 case object All extends QueryFilter
 
-trait LoggerService {}
+trait LoggerService {
+  def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int]
+  def getLogs(queryFilter: QueryFilter): Future[Seq[Log]]
+  def getLogsByCard(cardId: Int): Future[Seq[Log]]
+  def getAnomalies(fromDateTime: Time, toDateTime: Time, times: Int): Future[Iterable[Int]]
+}
 
-class DatabaseLoggerServiceImpl(implicit db: Database) {
+class DatabaseLoggerServiceImpl(implicit db: Database) extends LoggerService {
   val logs = TableQuery[LogTable]
 
   def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int] = {
