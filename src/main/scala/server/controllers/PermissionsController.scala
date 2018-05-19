@@ -1,16 +1,12 @@
 package server.controllers
 
-import akka.http.scaladsl.server.Directives.{complete, get, parameters, path}
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, _}
 import akka.http.scaladsl.server.Route
-import server.services.{CardServiceImpl, GroupService, GroupServiceImpl}
-import slick.jdbc.H2Profile
+import server.services.{CardServiceImpl, GroupService}
 
 
-class PermissionsController(cardManager: CardServiceImpl)(implicit val db: H2Profile.backend.Database)
-  extends Controller {
-  val groupService: GroupService = new GroupServiceImpl()
+class PermissionsController(cardManager: CardServiceImpl, groupService: GroupService) extends Controller {
   val routes: Route = {
     path("setIndividualAccess") {
       get {
