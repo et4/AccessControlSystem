@@ -16,6 +16,9 @@ trait CardService {
 class CardServiceImpl(implicit db: Database) extends CardService {
   val cards = TableQuery[CardTable]
 
+  /**
+    * @return sequence of tuples - (Individual access, Exceptional access, Group Access)
+    */
   private def cardAccessData(cardId: Int): Future[Seq[(Boolean, Option[String], Option[Boolean])]] = {
     db.run(cards
         .filter(_.id === cardId.bind)
