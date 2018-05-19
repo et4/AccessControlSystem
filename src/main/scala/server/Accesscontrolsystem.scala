@@ -11,14 +11,14 @@ import server.services.{CardService, CardServiceImpl, GroupService, GroupService
 
 import scala.concurrent.Future
 
-class RestServer(implicit val system: ActorSystem,
-                 implicit val materializer: ActorMaterializer) {
+class Accesscontrolsystem(implicit val system: ActorSystem,
+                          implicit val materializer: ActorMaterializer) {
   def startServer(route: Route, address: String, port: Int): Future[Http.ServerBinding] = {
     Http().bindAndHandle(route, address, port)
   }
 }
 
-object RestServer {
+object Accesscontrolsystem {
   import slick.jdbc.H2Profile
   import slick.jdbc.JdbcBackend.Database
 
@@ -34,7 +34,7 @@ object RestServer {
     val permissionsController = new PermissionsController(cardService, groupService)
     val turnstileController = new TurnstileController(cardService)
 
-    val server = new RestServer()
-    server.startServer(permissionsController.routes ~ turnstileController.routes, "localhost", 8182)
+    val server = new Accesscontrolsystem()
+    server.startServer(permissionsController.routes ~ turnstileController.routes, "0.0.0.0", 8182)
   }
 }

@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=accesscontrol_db
+  accesscontrol:
+    image: accesscontrolsystem:0.1
+    ports:
+      - 8182:8182
