@@ -44,7 +44,7 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
         parameters('cardIds.as[String], 'access.as[Boolean]) { (cardIds, access) =>
           complete {
             //id передаются в виде строки через ;
-            groupService.addGroup(cardIds.split(";").map(_.toInt).toSeq, access)
+            groupService.createGroupForCards(cardIds.split(";").map(_.toInt).toSeq, access)
             HttpResponse(StatusCodes.OK)
           }
         }

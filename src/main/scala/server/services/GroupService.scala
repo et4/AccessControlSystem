@@ -8,13 +8,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait GroupService {
-  def addEmptyGroup(access: Boolean): Future[Int]
-  def addGroup(cardsId: Seq[Int], access: Boolean): Future[Seq[Int]]
-  def setGroupAccess(groupId: Int, access: Boolean): Future[Int]
+  def addEmptyGroup       (access: Boolean): Future[Int]
+  
+  def setGroupAccess      (groupId: Int, access: Boolean): Future[Int]
+
   def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[Int]
-  def setGroupToCard(cardId: Int, groupId: Int): Future[Int]
-  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Future[Seq[Int]]
-  def kickFromGroup(cardId: Int, groupId: Int): Future[Int]
+
+  def setGroupToCard      (cardId: Int, groupId: Int): Future[Int]
+
+  def kickFromGroup       (cardId: Int, groupId: Int): Future[Int]
+
+  def createGroupForCards (cardsId: Seq[Int], access: Boolean): Future[Seq[Int]]
+
+  def setGroupToCards     (cardsId: Seq[Int], groupId: Int): Future[Seq[Int]]
 }
 
 class GroupServiceImpl(implicit db: Database) extends GroupService {
@@ -25,7 +31,7 @@ class GroupServiceImpl(implicit db: Database) extends GroupService {
     db.run((groups returning groups.map(_.id)) += Group(None, access))
   }
 
-  def addGroup(cardsId: Seq[Int], access: Boolean): Future[Seq[Int]] = {
+  def createGroupForCards(cardsId: Seq[Int], access: Boolean): Future[Seq[Int]] = {
     addEmptyGroup(access).map(groupId => setGroupToCards(cardsId, groupId)).flatten
   }
 
@@ -52,8 +58,8 @@ class GroupServiceImpl(implicit db: Database) extends GroupService {
     db.run(groupAccess.insertOrUpdate(GroupAccess(cardId, groupId, "DEFAULT")))
   }
 
-  def setGroupToCards(cardIds: Seq[Int], groupId: Int): Future[Seq[Int]] = {
-    Future.traverse(cardIds)(setGroupToCard(_, groupId))
+  def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[Int]] = {
+    Future.traverse(cardsId)(setGroupToCard(_, groupId))
 //    db.run(
 //      DBIO.sequence(
 //        cardIds.map {
