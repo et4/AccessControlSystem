@@ -14,7 +14,7 @@ case object Out extends QueryFilter
 case object All extends QueryFilter
 
 trait LoggerService {
-  def log(cardId: Int, time: Timestamp, eventType: String, success: Boolean): Future[Int]
+  def log(cardId: Int, time: Timestamp, eventType: String, success: Boolean): Future[Log]
 
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]]
 
@@ -28,8 +28,8 @@ class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBacke
 
   import profile.api._
 
-  def log(cardId: Int, date: Timestamp, eventType: String, success: Boolean): Future[Int] = {
-    db.run(logs += Log(cardId, date, eventType, success))
+  def log(cardId: Int, date: Timestamp, eventType: String, success: Boolean): Future[Log] = {
+    db.run(logs += Log(cardId, date, eventType, success)).map[Log](_ => Log(cardId, date, eventType, success))
   }
 
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]] = {
