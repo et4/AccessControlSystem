@@ -1,8 +1,11 @@
 package integration
 
-import server.Group
+import server.{Group, GroupAccess}
 import server.services.GroupServiceImpl
 import slick.jdbc.PostgresProfile
+import scala.concurrent.duration._
+
+import scala.concurrent.Await
 
 class GroupServiceTest extends FutureTest with DatabaseTest {
   val groupService = new GroupServiceImpl(PostgresProfile)(database)
@@ -18,6 +21,11 @@ class GroupServiceTest extends FutureTest with DatabaseTest {
   }
 
   it should " " in {
-
+    val eventualAccesses = groupService.createGroupForCards(Seq(1, 2, 3, 4), false)
+    val groupId = Await.result(eventualAccesses.map(_.head.groupId), 5.seconds)
+    eventualAccesses.futureValue should contain (GroupAccess(1, groupId, "DEFAULT"))
+    eventualAccesses.futureValue should contain (GroupAccess(2, groupId, "DEFAULT"))
+    eventualAccesses.futureValue should contain (GroupAccess(3, groupId, "DEFAULT"))
+    eventualAccesses.futureValue should contain (GroupAccess(4, groupId, "DEFAULT"))
   }
 }
