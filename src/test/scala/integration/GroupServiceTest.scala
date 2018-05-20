@@ -5,6 +5,8 @@ import server.services.GroupServiceImpl
 import slick.jdbc.PostgresProfile
 import scala.concurrent.duration._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.Await
 
 class GroupServiceTest extends FutureTest with DatabaseTest {

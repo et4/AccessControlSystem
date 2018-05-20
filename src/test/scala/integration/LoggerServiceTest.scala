@@ -18,7 +18,7 @@ class LoggerServiceTest extends FutureTest with DatabaseTest {
 
   override protected def beforeAll(): Unit = {
 
-    val seq: Seq[Future[Int]] = Seq(
+    val seq: Seq[Future[Log]] = Seq(
       loggerService.log(1, timestamp, "IN", true),
       loggerService.log(2, timestamp, "IN", false),
       loggerService.log(2, timestamp, "OUT", true),
