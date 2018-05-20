@@ -32,6 +32,16 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
     db.run(groups.filter(_.id === groupId.bind).result.head)
   }
 
+  def getGroupAccess(cardId: Int, groupId: Int): Future[GroupAccess] = {
+    db.run(
+      groupsAccess
+        .filter(_.groupId === groupId.bind)
+        .filter(_.cardId === cardId.bind)
+        .result
+        .head
+    )
+  }
+
   def addEmptyGroup(access: Boolean): Future[Group] = {
     db.run(
       (groups returning groups.map(_.id) into ((group, id) => group.copy(id=Some(id)))) += Group(None, access)
