@@ -1,13 +1,12 @@
 package integration
 
-import server.{Group, GroupAccess}
 import server.services.GroupServiceImpl
+import server.{Group, GroupAccess}
 import slick.jdbc.PostgresProfile
-import scala.concurrent.duration._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 class GroupServiceTest extends FutureTest with DatabaseTest {
   val groupService = new GroupServiceImpl(PostgresProfile)(database)
@@ -46,5 +45,13 @@ class GroupServiceTest extends FutureTest with DatabaseTest {
       .setExceptionalAccess(3, 1, "DEFAULT")
       .flatMap(_ => groupService.getGroupAccess(3, 1))
       .futureValue should be (GroupAccess(3,1,"DEFAULT"))
+  }
+
+  "GroupService.kickFromGroup" should "kick card from group" in {
+    groupService.getGroupAccess(3, 1).futureValue should be (GroupAccess(3, 1, "DEFAULT"))
+    groupService
+      .kickFromGroup(3, 1)
+      .map(_ => groupService.getGroupAccess(3, 1))
+      .futureValue.failed
   }
 }
