@@ -23,6 +23,8 @@ trait LoggerService {
   def getLogsByCard(cardId: Int): Future[Seq[Log]]
 
   def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Iterable[Int]]
+
+  def getTimeInside(cardId: Int, fromDateTime: Timestamp, toDateTime: Timestamp): Future[Long]
 }
 
 class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
@@ -57,5 +59,31 @@ class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBacke
         .map(_._1)
         .result
     )
+  }
+
+  def getTimeInside(cardId: Int, fromDateTime: Timestamp, toDateTime: Timestamp): Future[Long] = {
+    def addClosingBounds(cardLogs: Seq[Log]): Long = {
+      var logs = cardLogs
+
+      if (cardLogs.head.eventType == "OUT") logs = Log(cardId, fromDateTime, "IN", true) +: logs
+      if (cardLogs.last.eventType == "IN") logs = logs :+ Log(cardId, toDateTime, "OUT", true)
+
+      logs.foldLeft(0L)(
+        (b, log) =>
+          if (log.eventType == "IN")
+            b - log.dateTime.getTime
+          else
+            b + log.dateTime.getTime
+      )
+    }
+
+    db.run(
+      logs
+        .filter(_.cardId === cardId.bind)
+        .filter(_.success === true)
+        .filter(log => fromDateTime.bind <= log.dateTime && log.dateTime <= toDateTime.bind)
+        .sortBy(_.dateTime)
+        .result
+    ).map[Long](cardLogs => if (cardLogs.isEmpty) 0L else addClosingBounds(cardLogs))
   }
 }
