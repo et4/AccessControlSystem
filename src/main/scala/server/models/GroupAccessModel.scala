@@ -9,12 +9,12 @@ trait GroupAccessModel extends DatabaseModel with CardModel with GroupModel {
                                 exceptionalAccess: String
                               )
 
-  final class GroupAccessTable(tag: Tag) extends Table[GroupAccess](tag, "GROUPACCESS") {
-    def cardId = column[Int]("CARDID")
+  final class GroupAccessTable(tag: Tag) extends Table[GroupAccess](tag, "groupaccess") {
+    def cardId = column[Int]("cardid")
 
-    def groupId = column[Int]("GROUPID")
+    def groupId = column[Int]("groupid")
 
-    def access = column[String]("EXCEPTIONALACCESS")
+    def access = column[String]("exceptionalaccess")
 
     def * = (cardId, groupId, access) <> (GroupAccess.tupled, GroupAccess.unapply)
 

@@ -8,10 +8,10 @@ trait GroupModel extends DatabaseModel {
                           hasAccess: Boolean,
                         )
 
-  final class GroupTable(tag: Tag) extends Table[Group](tag, "GROUP") {
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  final class GroupTable(tag: Tag) extends Table[Group](tag, "group") {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-    def hasAccess = column[Boolean]("HASACCESS")
+    def hasAccess = column[Boolean]("hasaccess")
 
     def * = (id.?, hasAccess) <> (Group.tupled, Group.unapply)
   }

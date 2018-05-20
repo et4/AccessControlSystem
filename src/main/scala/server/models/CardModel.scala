@@ -8,10 +8,10 @@ trait CardModel extends DatabaseModel {
                          hasAccess : Boolean,
                        )
 
-  final class CardTable(tag: Tag) extends Table[Card](tag, "CARD") {
-    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
+  final class CardTable(tag: Tag) extends Table[Card](tag, "card") {
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
 
-    def hasAccess = column[Boolean]("HASACCESS")
+    def hasAccess = column[Boolean]("hasaccess")
 
     def * = (id.?, hasAccess) <> (Card.tupled, Card.unapply)
   }

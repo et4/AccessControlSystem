@@ -19,7 +19,7 @@ class Accesscontrolsystem(implicit val system: ActorSystem,
 }
 
 object Accesscontrolsystem {
-  import slick.jdbc.H2Profile
+  import slick.jdbc.PostgresProfile
   import slick.jdbc.JdbcBackend.Database
 
   def main(args: Array[String]) {
@@ -28,8 +28,8 @@ object Accesscontrolsystem {
 
     implicit val db: Database = Database.forConfig("db")
 
-    val cardService: CardService = new CardServiceImpl(H2Profile)
-    val groupService: GroupService = new GroupServiceImpl(H2Profile)
+    val cardService: CardService = new CardServiceImpl(PostgresProfile)
+    val groupService: GroupService = new GroupServiceImpl(PostgresProfile)
 
     val permissionsController = new PermissionsController(cardService, groupService)
     val turnstileController = new TurnstileController(cardService)

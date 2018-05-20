@@ -13,14 +13,14 @@ trait LogModel extends DatabaseModel with CardModel {
                         success: Boolean
                       )
 
-  final class LogTable(tag: Tag) extends Table[Log](tag, "LOG") {
-    def cardId = column[Int]("CARDID")
+  final class LogTable(tag: Tag) extends Table[Log](tag, "log") {
+    def cardId = column[Int]("cardid")
 
-    def dateTime = column[Time]("DATETIME")
+    def dateTime = column[Time]("datetime")
 
-    def eventType = column[String]("EVENTTYPE")
+    def eventType = column[String]("eventtype")
 
-    def success = column[Boolean]("SUCCESS")
+    def success = column[Boolean]("success")
 
     def * = (cardId, dateTime, eventType, success) <> (Log.tupled, Log.unapply)
 

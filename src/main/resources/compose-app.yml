@@ -7,6 +7,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=accesscontrol_db
+    ports:
+      - 5431:5432
   accesscontrol:
     image: accesscontrolsystem:0.1
     ports:
