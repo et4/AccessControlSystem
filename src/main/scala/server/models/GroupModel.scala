@@ -1,12 +1,9 @@
 package server.models
 
+import server.Group
+
 trait GroupModel extends DatabaseModel {
   import profile.api._
-
-  final case class Group(
-                          id: Option[Int],
-                          hasAccess: Boolean,
-                        )
 
   final class GroupTable(tag: Tag) extends Table[Group](tag, "group") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

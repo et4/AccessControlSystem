@@ -1,5 +1,6 @@
 package server.services
 
+import server.{Group, GroupAccess}
 import server.models._
 import slick.jdbc.{JdbcBackend, JdbcProfile}
 
@@ -26,6 +27,10 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
   extends GroupService with GroupModel with GroupAccessModel {
 
   import profile.api._
+
+  def getGroup(groupId: Int): Future[Group] = {
+    db.run(groups.filter(_.id === groupId.bind).result.head)
+  }
 
   def addEmptyGroup(access: Boolean): Future[Int] = {
     db.run((groups returning groups.map(_.id)) += Group(None, access))

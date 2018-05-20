@@ -2,18 +2,14 @@ package server
 
 import java.time.Instant
 
-import org.scalatest.{FlatSpecLike, Matchers, WordSpec}
-import akka.http.scaladsl.model.{HttpMethods, HttpRequest, StatusCodes, Uri}
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.server._
-import Directives._
 import akka.http.scaladsl.model.Uri.Query
+import akka.http.scaladsl.model.{HttpMethods, HttpRequest, StatusCodes, Uri}
+import akka.http.scaladsl.server._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.pattern.FutureRef
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpecLike, Matchers}
 import server.controllers.TurnstileController
-import server.services.CardServiceImpl
+import server.services.CardService
 import slick.jdbc
 import slick.jdbc.H2Profile
 
@@ -23,7 +19,7 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
 
   trait Setup {
     implicit val db: jdbc.H2Profile.backend.Database = mock[H2Profile.backend.Database]
-    val cardManager: CardServiceImpl = mock[CardServiceImpl]
+    val cardManager: CardService = mock[CardService]
     lazy val controller = new TurnstileController(cardManager)
     lazy val routes: Route = Route.seal(controller.routes)
   }

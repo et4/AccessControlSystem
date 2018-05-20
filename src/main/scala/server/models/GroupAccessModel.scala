@@ -1,13 +1,9 @@
 package server.models
 
+import server.GroupAccess
+
 trait GroupAccessModel extends DatabaseModel with CardModel with GroupModel {
   import profile.api._
-
-  final case class GroupAccess(
-                                cardId: Int,
-                                groupId: Int,
-                                exceptionalAccess: String
-                              )
 
   final class GroupAccessTable(tag: Tag) extends Table[GroupAccess](tag, "groupaccess") {
     def cardId = column[Int]("cardid")

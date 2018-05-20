@@ -1,9 +1,11 @@
 package server.services
 
-import java.sql.Time
+import java.sql.Timestamp
 
+import server.Log
 import server.models.LogModel
 import slick.jdbc.{JdbcBackend, JdbcProfile}
+
 import scala.concurrent.Future
 
 sealed trait QueryFilter
@@ -11,22 +13,23 @@ case object In extends QueryFilter
 case object Out extends QueryFilter
 case object All extends QueryFilter
 
-trait LoggerService extends LogModel {
-  def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int]
+trait LoggerService {
+  def log(cardId: Int, time: Timestamp, eventType: String, success: Boolean): Future[Int]
 
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]]
 
   def getLogsByCard(cardId: Int): Future[Seq[Log]]
 
-  def getAnomalies(fromDateTime: Time, toDateTime: Time, times: Int): Future[Iterable[Int]]
+  def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Iterable[Int]]
 }
 
-class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database) extends LoggerService {
+class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
+  extends LoggerService with LogModel {
 
   import profile.api._
 
-  def log(cardId: Int, time: Time, eventType: String, success: Boolean): Future[Int] = {
-    db.run(logs += Log(cardId, time, eventType, success))
+  def log(cardId: Int, date: Timestamp, eventType: String, success: Boolean): Future[Int] = {
+    db.run(logs += Log(cardId, date, eventType, success))
   }
 
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]] = {
@@ -41,7 +44,7 @@ class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBacke
     db.run(logs.filter(_.cardId === cardId.bind).result)
   }
 
-  def getAnomalies(fromDateTime: Time, toDateTime: Time, times: Int): Future[Iterable[Int]] = {
+  def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Iterable[Int]] = {
     db.run(
       logs
         .filter(_.success === false)

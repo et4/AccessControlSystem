@@ -1,12 +1,9 @@
 package server.models
 
+import server.Card
+
 trait CardModel extends DatabaseModel {
   import profile.api._
-
-  final case class Card(
-                         id : Option[Int],
-                         hasAccess : Boolean,
-                       )
 
   final class CardTable(tag: Tag) extends Table[Card](tag, "card") {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)

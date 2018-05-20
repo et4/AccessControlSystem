@@ -1,8 +1,8 @@
 package server.services
 
+import server.Card
 import server.models._
-
-import slick.jdbc.{JdbcProfile, JdbcBackend}
+import slick.jdbc.{JdbcBackend, JdbcProfile}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,11 +10,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait CardService {
   def hasAccess(cardId: Int): Future[Boolean]
 
-  def setIndividualAccess(cardId: Int, access: Boolean): Future[Int]
+  def setIndividualAccess(cardId: Int, access: Boolean): Future[Option[Card]]
 }
 
 class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
-  extends CardService with CardModel with GroupAccessModel with GroupModel {
+  extends CardService with CardModel with GroupAccessModel {
 
   import profile.api._
 
@@ -61,7 +61,8 @@ class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databas
     }
   }
 
-  def setIndividualAccess(cardId: Int, access: Boolean): Future[Int] = {
-    db.run(cards.filter(_.id === cardId).map(_.hasAccess).update(access))
+  def setIndividualAccess(cardId: Int, access: Boolean): Future[Option[Card]] = {
+    val row = cards.filter(_.id === cardId)
+    db.run(row.map(_.hasAccess).update(access).andThen(row.result.headOption))
   }
 }

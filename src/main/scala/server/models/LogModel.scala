@@ -1,22 +1,17 @@
 package server.models
 
-import java.sql.Time
+import java.sql.Timestamp
+
+import server.Log
 
 trait LogModel extends DatabaseModel with CardModel {
 
   import profile.api._
 
-  final case class Log(
-                        cardId: Int,
-                        dateTime: Time,
-                        eventType: String,
-                        success: Boolean
-                      )
-
   final class LogTable(tag: Tag) extends Table[Log](tag, "log") {
     def cardId = column[Int]("cardid")
 
-    def dateTime = column[Time]("datetime")
+    def dateTime = column[Timestamp]("datetime")
 
     def eventType = column[String]("eventtype")
 
