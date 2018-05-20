@@ -1,38 +1,35 @@
-CREATE TABLE `Card` (
-  `id`        INT AUTO_INCREMENT NOT NULL,
-  `hasAccess` BOOLEAN            NOT NULL,
-  PRIMARY KEY (`id`)
+CREATE TABLE card (
+  id        SERIAL PRIMARY KEY,
+  hasAccess BOOLEAN  NOT NULL
 );
 
-CREATE TABLE `Group` (
-  `id`        INT AUTO_INCREMENT NOT NULL,
-  `hasAccess` BOOLEAN            NOT NULL,
-  PRIMARY KEY (`id`)
+CREATE TABLE "group" (
+  id        SERIAL  PRIMARY KEY,
+  hasAccess BOOLEAN NOT NULL
 );
 
-CREATE TABLE `GroupAccess` (
-  `cardId`            INT     NOT NULL,
-  `groupId`           INT     NOT NULL,
-  `exceptionalAccess` VARCHAR NOT NULL
+CREATE TABLE groupaccess (
+  cardId            INT     NOT NULL,
+  groupId           INT     NOT NULL,
+  exceptionalAccess VARCHAR NOT NULL
 );
 
-CREATE TABLE `Log` (
-  `id`        INT AUTO_INCREMENT NOT NULL,
-  `cardId`    INT                NOT NULL,
-  `datetime`  TIMESTAMP          NOT NULL,
-  `eventType` VARCHAR            NOT NULL,
-  `success`   BOOLEAN            NOT NULL,
-  PRIMARY KEY (`id`)
+CREATE TABLE log (
+  id        SERIAL PRIMARY KEY,
+  cardId    INT                NOT NULL,
+  datetime  TIMESTAMP          NOT NULL,
+  eventType VARCHAR            NOT NULL,
+  success   BOOLEAN            NOT NULL
 );
 
-ALTER TABLE `GroupAccess`
-  ADD CONSTRAINT `fk_GroupAccess_groupId`
-FOREIGN KEY (`groupId`) REFERENCES `Group` (`id`);
+ALTER TABLE groupaccess
+  ADD CONSTRAINT fk_GroupAccess_groupId
+FOREIGN KEY (groupId) REFERENCES "group" (id);
 
-ALTER TABLE `GroupAccess`
-  ADD CONSTRAINT `fk_GroupAccess_cardId`
-FOREIGN KEY (`cardId`) REFERENCES `Card` (`id`);
+ALTER TABLE groupaccess
+  ADD CONSTRAINT fk_GroupAccess_cardId
+FOREIGN KEY (cardId) REFERENCES card (id);
 
-ALTER TABLE `Log`
-  ADD CONSTRAINT `fk_Log_cardId`
-FOREIGN KEY (`cardId`) REFERENCES `Card` (`id`);
+ALTER TABLE log
+  ADD CONSTRAINT fk_Log_cardId
+FOREIGN KEY (cardId) REFERENCES card (id);
