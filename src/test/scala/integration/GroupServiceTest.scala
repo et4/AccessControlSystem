@@ -31,7 +31,7 @@ class GroupServiceTest extends FutureTest with DatabaseTest {
     eventualAccesses.futureValue should contain (GroupAccess(4, groupId, "DEFAULT"))
   }
 
-  "GroupService.createGroupForCards" should "create group access for every card" in {
+  "GroupService.setExceptionalAccess" should "set exceptional access" in {
     groupService
       .setExceptionalAccess(3, 1, "FORBIDDEN")
       .flatMap(_ => groupService.getGroupAccess(3, 1))
@@ -39,7 +39,7 @@ class GroupServiceTest extends FutureTest with DatabaseTest {
 
     groupService
       .setExceptionalAccess(3, 1, "GRANTED")
-      .flatMap(_ => groupService.getGroupAccess(1, 1))
+      .flatMap(_ => groupService.getGroupAccess(3, 1))
       .futureValue should be (GroupAccess(3,1,"GRANTED"))
 
     groupService

@@ -11,7 +11,8 @@ CREATE TABLE "group" (
 CREATE TABLE groupaccess (
   cardId            INT     NOT NULL,
   groupId           INT     NOT NULL,
-  exceptionalAccess VARCHAR NOT NULL
+  exceptionalAccess VARCHAR NOT NULL,
+  PRIMARY KEY (cardId, groupId)
 );
 
 CREATE TABLE log (

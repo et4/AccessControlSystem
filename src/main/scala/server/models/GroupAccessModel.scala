@@ -14,6 +14,8 @@ trait GroupAccessModel extends DatabaseModel with CardModel with GroupModel {
 
     def * = (cardId, groupId, access) <> (GroupAccess.tupled, GroupAccess.unapply)
 
+    def pk = primaryKey("groupaccess_pkey", (cardId, groupId))
+
     def card = foreignKey("fk_GroupAccess_cardId", cardId, TableQuery[CardTable])(_.id)
 
     def group = foreignKey("fk_GroupAccess_groupId", groupId, TableQuery[GroupTable])(_.id)
