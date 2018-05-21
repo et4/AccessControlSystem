@@ -16,7 +16,7 @@ class TurnstileService extends Service {
 
     val responseFuture: Future[HttpResponse] =
       Http().singleRequest(HttpRequest(HttpMethods.GET,
-        Uri("http://localhost:8182/action").withQuery(Query(
+        Uri(uri + "/action").withQuery(Query(
           "cardId" -> cardId.toString,
           "date" -> date.toString,
           "event" -> eventTypeToString(eventType)))))
@@ -35,7 +35,7 @@ class TurnstileService extends Service {
 
     val responseFuture: Future[HttpResponse] =
       Http().singleRequest(HttpRequest(HttpMethods.GET,
-        Uri("http://localhost:8182/getAllCards")))
+        Uri(uri + "/getAllCards")))
 
     var cardsId = "1"
     responseFuture.onComplete {
