@@ -5,8 +5,6 @@ import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, _}
 import akka.http.scaladsl.server.Route
 import server.services.{CardService, GroupService}
 
-import scala.concurrent.Await
-
 
 class PermissionsController(cardManager: CardService, groupService: GroupService) extends Controller {
   val routes: Route = {
@@ -70,9 +68,10 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("setExceptionalAccess") {
       get {
         parameters('cardId.as[String], 'groupId.as[String], 'access.as[String]) { (cardId, groupId, access) =>
-          complete {
-            groupService.setExceptionalAccess(cardId.toInt, groupId.toInt, access)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(groupService.setExceptionalAccess(cardId.toInt, groupId.toInt, access)) { _ =>
+            complete {
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
@@ -80,9 +79,10 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("setGroupToCard") {
       get {
         parameters('cardId.as[String], 'groupId.as[String]) { (cardId, groupId) =>
-          complete {
-            groupService.setGroupToCard(cardId.toInt, groupId.toInt)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(groupService.setGroupToCard(cardId.toInt, groupId.toInt)) { _ =>
+            complete {
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
@@ -90,18 +90,23 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("setGroupToCards") {
       get {
         parameters('cardIds.as[String], 'groupId.as[String]) { (cardIds, groupId) =>
-          complete {
-            groupService.setGroupToCards(cardIds.split(";").map(_.toInt).toSeq, groupId.toInt)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(groupService.setGroupToCards(cardIds.split(";").map(_.toInt).toSeq, groupId.toInt)) { _ =>
+            complete {
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
     } ~
     path("getAllCards") {
       get {
-        complete {
-          val cards = Await.result(cardManager.getAllCards, timeout).map(card => card.id.get.toString).mkString(";")
-          HttpResponse(StatusCodes.OK, entity = HttpEntity(cards))
+        onSuccess(cardManager.getAllCards) { cards =>
+          complete {
+            HttpResponse(
+              StatusCodes.OK,
+              entity = HttpEntity(cards.map(card => card.id.get.toString).mkString(";"))
+            )
+          }
         }
       }
     }
