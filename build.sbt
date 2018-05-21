@@ -22,7 +22,7 @@ lazy val app = (project in file("."))
       "com.typesafe.slick" %% "slick" % "3.2.3",
       "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
       "com.h2database" % "h2" % "1.4.185",
-      "postgresql" % "postgresql" % "9.1-901-1.jdbc4",
+      "org.postgresql" % "postgresql" % "42.1.4",
       "org.liquibase" % "liquibase-core" % "3.5.3",
       "com.mattbertolini" % "liquibase-slf4j" % "2.0.0",
 
