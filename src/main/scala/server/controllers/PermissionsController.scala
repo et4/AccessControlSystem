@@ -38,7 +38,7 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
         parameters('access.as[Boolean]) { (access) =>
           onSuccess(groupService.addEmptyGroup(access)) { value =>
             complete {
-              HttpResponse(StatusCodes.OK, entity = HttpEntity(value))
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(value.toString))
             }
           }
         }
