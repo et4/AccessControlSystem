@@ -1,6 +1,9 @@
 package client.view
 
 import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.{Date, Locale}
 
 import client.domain.{Card, EntranceEvent, ExitEvent}
 import client.services.{LogService, PermissionService, TurnstileService}
@@ -10,7 +13,7 @@ object ConsoleView extends App {
   val turnstileService = new TurnstileService()
   val permissionService = new PermissionService()
   val logService = new LogService()
-  var selectedCardId: Int = -1
+  var selectedCardId: Int = 1
   var selectedGroupId: Int = 1
 
   showInfo()
@@ -28,6 +31,8 @@ object ConsoleView extends App {
       case 7 => addExceptionForGroup()
       case 8 => showAllComeInRequests()
       case 9 => showAllComeOutRequests()
+      case 10 => showAnomalies()
+      case 11 => showTimeAtWork()
     }
     printDone()
   }
@@ -90,11 +95,24 @@ object ConsoleView extends App {
   }
 
   def showAnomalies(): Unit = {
-    //    logService.getAnomalies()
+    val (from, to) = askDate()
+    println("Number of times:")
+    val times = scala.io.StdIn.readInt()
+    logService.getAnomalies(from, to, times)
   }
 
   def showTimeAtWork(): Unit = {
-    //    logService.getTimeInside()
+    val (from, to) = askDate()
+    logService.getTimeInside(selectedCardId, from, to)
+  }
+
+  def askDate(): (Long, Long) = {
+    val dateFormat = new SimpleDateFormat("dd-MMM-yyyy", Locale.US)
+    println("Date from:")
+    val dateFrom = scala.io.StdIn.readLine()
+    println("Date to:")
+    val dateTo = scala.io.StdIn.readLine()
+    (dateFormat.parse(dateFrom).getTime, dateFormat.parse(dateTo).getTime)
   }
 
   def printDone(): Unit = println("Done")
