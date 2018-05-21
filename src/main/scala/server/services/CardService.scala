@@ -11,6 +11,8 @@ trait CardService {
   def hasAccess(cardId: Int): Future[Boolean]
 
   def setIndividualAccess(cardId: Int, access: Boolean): Future[Option[Card]]
+
+  def getAllCards: Future[Seq[Card]]
 }
 
 class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
@@ -64,5 +66,9 @@ class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databas
   def setIndividualAccess(cardId: Int, access: Boolean): Future[Option[Card]] = {
     val row = cards.filter(_.id === cardId)
     db.run(row.map(_.hasAccess).update(access).andThen(row.result.headOption))
+  }
+
+  override def getAllCards: Future[Seq[Card]] = {
+    db.run(cards.result)
   }
 }
