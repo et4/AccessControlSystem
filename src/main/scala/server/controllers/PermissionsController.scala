@@ -47,10 +47,11 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("addGroup") {
       get {
         parameters('cardIds.as[String], 'access.as[Boolean]) { (cardIds, access) =>
-          complete {
-            //id передаются в виде строки через ;
-            groupService.createGroupForCards(cardIds.split(";").map(_.toInt).toSeq, access)
-            HttpResponse(StatusCodes.OK)
+          //id передаются в виде строки через ;
+          onSuccess(groupService.createGroupForCards(cardIds.split(";").map(_.toInt).toSeq, access)) { value =>
+            complete {
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(value.toString()))
+            }
           }
         }
       }
@@ -58,9 +59,10 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("kickFromGroup") {
       get {
         parameters('cardId.as[String], 'groupId.as[String]) { (cardId, groupId) =>
-          complete {
-            groupService.kickFromGroup(cardId.toInt, groupId.toInt)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(groupService.kickFromGroup(cardId.toInt, groupId.toInt)) { _ =>
+            complete {
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
