@@ -34,7 +34,7 @@ object Accesscontrolsystem {
     val loggerService: LoggerService = new DatabaseLoggerServiceImpl(PostgresProfile)
 
     val permissionsController = new PermissionsController(cardService, groupService)
-    val turnstileController = new TurnstileController(cardService)
+    val turnstileController = new TurnstileController(cardService, loggerService)
     val loggerController = new LoggerController(loggerService)
 
     val server = new Accesscontrolsystem()

@@ -52,7 +52,7 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
     )
   }
 
-  def getGroupsAccess(cardId: Int, groupId: Int): Future[Seq[GroupAccess]] = {
+  def getGroupsAccess: Future[Seq[GroupAccess]] = {
     db.run(groupsAccess.result)
   }
 

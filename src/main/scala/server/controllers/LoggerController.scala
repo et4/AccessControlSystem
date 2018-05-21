@@ -7,16 +7,15 @@ import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, _}
 import akka.http.scaladsl.server.Route
 import server.services._
 
-import scala.concurrent.{Await, Future}
-
 class LoggerController(loggerService: LoggerService) extends Controller {
   val routes: Route = {
     path("getAnomalies") {
       get {
         parameters('fromDateTime.as[Long], 'toDateTime.as[Long], 'times.as[Int]) { (fromDateTime, toDateTime, times) =>
-          complete {
-            loggerService.getAnomalies(new Timestamp(fromDateTime), new Timestamp(toDateTime), times)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(loggerService.getAnomalies(new Timestamp(fromDateTime), new Timestamp(toDateTime), times)) { value =>
+            complete {
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(value.mkString(";")))
+            }
           }
         }
       }
@@ -25,27 +24,29 @@ class LoggerController(loggerService: LoggerService) extends Controller {
     path("getTimeInside") {
       get {
         parameters('cardId.as[Int], 'fromDateTime.as[Long], 'toDateTime.as[Long]) { (cardId, fromDateTime, toDateTime) =>
-          complete {
-            loggerService.getTimeInside(cardId, new Timestamp(fromDateTime), new Timestamp(toDateTime))
-            HttpResponse(StatusCodes.OK)
+          onSuccess(loggerService.getTimeInside(cardId, new Timestamp(fromDateTime), new Timestamp(toDateTime))) { value =>
+            complete {
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(value.toString))
+            }
           }
         }
       }
     } ~
     path("getComeInLogs") {
       get {
-        complete {
-          val ids = Await.result(loggerService.getLogs(In), timeout).mkString(";")
-          HttpResponse(StatusCodes.OK, entity = HttpEntity(ids))
+        onSuccess(loggerService.getLogs(In).map(_.mkString(";"))) { logs =>
+          complete {
+            HttpResponse(StatusCodes.OK, entity = HttpEntity(logs))
+          }
         }
-
       }
     } ~
     path("getComeOutLogs") {
       get {
-        complete {
-          val ids = Await.result(loggerService.getLogs(Out), timeout).mkString(";")
-          HttpResponse(StatusCodes.OK, entity = HttpEntity(ids))
+        onSuccess(loggerService.getLogs(Out).map(_.mkString(";"))) { logs =>
+          complete {
+            HttpResponse(StatusCodes.OK, entity = HttpEntity(logs))
+          }
         }
       }
     }

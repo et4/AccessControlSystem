@@ -9,7 +9,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpecLike, Matchers}
 import server.controllers.TurnstileController
-import server.services.CardService
+import server.services.{CardService, LoggerService}
 import slick.jdbc
 import slick.jdbc.H2Profile
 
@@ -20,7 +20,8 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
   trait Setup {
     implicit val db: jdbc.H2Profile.backend.Database = mock[H2Profile.backend.Database]
     val cardManager: CardService = mock[CardService]
-    lazy val controller = new TurnstileController(cardManager)
+    val loggerService: LoggerService = mock[LoggerService]
+    lazy val controller = new TurnstileController(cardManager, loggerService)
     lazy val routes: Route = Route.seal(controller.routes)
   }
 
