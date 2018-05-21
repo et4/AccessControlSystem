@@ -6,8 +6,8 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import server.controllers.{PermissionsController, TurnstileController}
-import server.services.{CardService, CardServiceImpl, GroupService, GroupServiceImpl}
+import server.controllers.{LoggerController, PermissionsController, TurnstileController}
+import server.services._
 
 import scala.concurrent.Future
 
@@ -31,11 +31,14 @@ object Accesscontrolsystem {
 
     val cardService: CardService = new CardServiceImpl(PostgresProfile)
     val groupService: GroupService = new GroupServiceImpl(PostgresProfile)
+    val loggerService: LoggerService = new DatabaseLoggerServiceImpl(PostgresProfile)
 
     val permissionsController = new PermissionsController(cardService, groupService)
     val turnstileController = new TurnstileController(cardService)
+    val loggerController = new LoggerController(loggerService)
 
     val server = new Accesscontrolsystem()
-    server.startServer(permissionsController.routes ~ turnstileController.routes, "0.0.0.0", 8182)
+    server.startServer(permissionsController.routes ~ turnstileController.routes ~ loggerController.routes,
+      "0.0.0.0", 8182)
   }
 }
