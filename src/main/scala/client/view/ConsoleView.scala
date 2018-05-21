@@ -1,5 +1,7 @@
 package client.view
 
+import java.sql.Timestamp
+
 import client.domain.{Card, EntranceEvent, ExitEvent}
 import client.services.{PermissionService, TurnstileService}
 

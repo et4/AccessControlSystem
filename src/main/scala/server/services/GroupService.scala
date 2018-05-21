@@ -27,8 +27,6 @@ trait GroupService {
   def getGroups: Future[Seq[Group]]
 
   def getGroupAccess(cardId: Int, groupId: Int): Future[GroupAccess]
-
-  def getGroupsAccess: Future[Seq[GroupAccess]]
 }
 
 class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)

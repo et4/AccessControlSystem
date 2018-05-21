@@ -7,20 +7,25 @@ import akka.http.scaladsl.model.Uri.Query
 import scala.concurrent.Future
 
 class LogService extends Service {
-  def getAnomalies(cardId: Int, access: Boolean): Future[HttpResponse] =
+  def getAnomalies(fromDateTime: Long, toDateTime: Long, times: Int): Future[HttpResponse] =
     Http().singleRequest(HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/getAnomalies").withQuery(Query(
-        "cardId" -> cardId.toString,
-        "access" -> access.toString))))
+        "fromDateTime" -> fromDateTime.toString,
+        "toDateTime" -> toDateTime.toString,
+        "times" -> times.toString))))
 
-  def getTimeInside(groupId: Int, access: Boolean): Future[HttpResponse] =
+  def getTimeInside(cardId: Int, fromDateTime: Long, toDateTime: Long): Future[HttpResponse] =
     Http().singleRequest(HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/getTimeInside").withQuery(Query(
-        "groupId" -> groupId.toString,
-        "access" -> access.toString))))
+        "cardId" -> cardId.toString,
+        "fromDateTime" -> fromDateTime.toString,
+        "toDateTime" -> toDateTime.toString))))
 
-  def getLogs(access: Boolean): Future[HttpResponse] =
+  def getComeInLogs(access: Boolean): Future[HttpResponse] =
     Http().singleRequest(HttpRequest(HttpMethods.GET,
-      Uri("http://localhost:8182/getLogs").withQuery(Query(
-        "access" -> access.toString))))
+      Uri("http://localhost:8182/getComeInLogs")))
+
+  def getComeOutLogs(access: Boolean): Future[HttpResponse] =
+    Http().singleRequest(HttpRequest(HttpMethods.GET,
+      Uri("http://localhost:8182/getComeOutLogs")))
 }
