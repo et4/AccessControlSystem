@@ -1,11 +1,13 @@
 package server.controllers
 
 import _root_.server.services.CardService
+import akka.http.scaladsl.model.StatusCodes.Success
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{Directive1, Route}
 
 import scala.concurrent.Await
+import scala.util.Try
 
 class TurnstileController(cardManager: CardService) extends Controller {
   val routes: Route = {
@@ -18,6 +20,15 @@ class TurnstileController(cardManager: CardService) extends Controller {
             else
               HttpResponse(StatusCodes.Forbidden)
           }
+        }
+      }
+    }
+  } ~ path("hasAccess") {
+    get {
+      parameters('cardId.as[String]) { (cardId) =>
+        complete {
+          HttpResponse(StatusCodes.OK,
+            entity = HttpEntity(Await.result(cardManager.hasAccess(cardId.toInt), timeout).toString))
         }
       }
     }
