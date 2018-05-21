@@ -3,8 +3,10 @@ package client.services
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.model.Uri.Query
+import akka.http.scaladsl.unmarshalling.Unmarshal
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
+import scala.util.Success
 
 class LogService extends Service {
   def getAnomalies(fromDateTime: Long, toDateTime: Long, times: Int): Future[HttpResponse] =
@@ -21,11 +23,31 @@ class LogService extends Service {
         "fromDateTime" -> fromDateTime.toString,
         "toDateTime" -> toDateTime.toString))))
 
-  def getComeInLogs(access: Boolean): Future[HttpResponse] =
-    Http().singleRequest(HttpRequest(HttpMethods.GET,
+  def getComeInLogs: Seq[String] = {
+    val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(HttpMethods.GET,
       Uri(uri + "/getComeInLogs")))
 
-  def getComeOutLogs(access: Boolean): Future[HttpResponse] =
-    Http().singleRequest(HttpRequest(HttpMethods.GET,
+    var ids = Seq.empty[String]
+    responseFuture.onComplete {
+      case Success(res) =>
+        ids = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
+      case _ =>
+        sys.error("something wrong")
+    }
+    ids
+  }
+
+  def getComeOutLogs: Seq[String] = {
+    val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(HttpMethods.GET,
       Uri(uri + "/getComeOutLogs")))
+
+    var ids = Seq.empty[String]
+    responseFuture.onComplete {
+      case Success(res) =>
+        ids = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
+      case _ =>
+        sys.error("something wrong")
+    }
+    ids
+  }
 }
