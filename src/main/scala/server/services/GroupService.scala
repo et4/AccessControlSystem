@@ -21,12 +21,24 @@ trait GroupService {
   def createGroupForCards (cardsId: Seq[Int], access: Boolean): Future[Seq[GroupAccess]]
 
   def setGroupToCards     (cardsId: Seq[Int], groupId: Int): Future[Seq[GroupAccess]]
+
+  def getGroup(groupId: Int): Future[Group]
+
+  def getGroups: Future[Seq[Group]]
+
+  def getGroupAccess(cardId: Int, groupId: Int): Future[GroupAccess]
+
+  def getGroupsAccess: Future[Seq[GroupAccess]]
 }
 
 class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
   extends GroupService with GroupModel with GroupAccessModel {
 
   import profile.api._
+
+  def getGroups: Future[Seq[Group]] = {
+    db.run(groups.result)
+  }
 
   def getGroup(groupId: Int): Future[Group] = {
     db.run(groups.filter(_.id === groupId.bind).result.head)
@@ -40,6 +52,10 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
         .result
         .head
     )
+  }
+
+  def getGroupsAccess(cardId: Int, groupId: Int): Future[Seq[GroupAccess]] = {
+    db.run(groupsAccess.result)
   }
 
   def addEmptyGroup(access: Boolean): Future[Group] = {
