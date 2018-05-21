@@ -1,9 +1,11 @@
 package server.controllers
 
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, _}
 import akka.http.scaladsl.server.Route
-import server.services.{CardService, GroupService}
+import server.services.{CardService, CardServiceImpl, GroupService}
+
+import scala.concurrent.{Await, Future}
 
 
 class PermissionsController(cardManager: CardService, groupService: GroupService) extends Controller {
@@ -87,6 +89,14 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
             groupService.setGroupToCards(cardIds.split(";").map(_.toInt).toSeq, groupId.toInt)
             HttpResponse(StatusCodes.OK)
           }
+        }
+      }
+    } ~
+    path("getAllCards") {
+      get {
+        complete {
+          val cards = Await.result(cardManager.getAllCards, timeout).map(card => card.id.get.toString).mkString(";")
+          HttpResponse(StatusCodes.OK, entity = HttpEntity(cards))
         }
       }
     }

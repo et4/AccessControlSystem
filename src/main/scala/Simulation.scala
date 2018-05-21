@@ -1,15 +1,16 @@
 import java.time.Instant
 
-import client._
+import client.domain._
+import client.services.TurnstileService
 
 import scala.util.Random
 
 object Simulation extends App {
-  val turn = new Turnstile()
+  val turn = new TurnstileService()
 
   val cards: Seq[Card] = generateRandomCards(10)
 
-  (cards :+ Card(1, PermissionPresent)).foreach(card => turn.requestAccess(card, Instant.now(), randomEvent))
+  (cards :+ Card(1, PermissionPresent)).foreach(card => turn.requestAccess(card.cardId, Instant.now(), randomEvent))
 
   def generateRandomCards(amount: Int): Seq[Card] = {
     val MAX_ID = 1000000

@@ -3,6 +3,7 @@ package server.models
 import server.Group
 
 trait GroupModel extends DatabaseModel {
+
   import profile.api._
 
   final class GroupTable(tag: Tag) extends Table[Group](tag, "group") {

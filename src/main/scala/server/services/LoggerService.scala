@@ -11,8 +11,11 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 sealed trait QueryFilter
+
 case object In extends QueryFilter
+
 case object Out extends QueryFilter
+
 case object All extends QueryFilter
 
 trait LoggerService {

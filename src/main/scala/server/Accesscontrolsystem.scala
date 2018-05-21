@@ -19,6 +19,7 @@ class Accesscontrolsystem(implicit val system: ActorSystem,
 }
 
 object Accesscontrolsystem {
+
   import slick.jdbc.PostgresProfile
   import slick.jdbc.JdbcBackend.Database
 

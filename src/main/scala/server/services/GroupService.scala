@@ -8,19 +8,19 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait GroupService {
-  def addEmptyGroup       (access: Boolean): Future[Group]
-  
-  def setGroupAccess      (groupId: Int, access: Boolean): Future[Group]
+  def addEmptyGroup(access: Boolean): Future[Group]
+
+  def setGroupAccess(groupId: Int, access: Boolean): Future[Group]
 
   def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[GroupAccess]
 
-  def setGroupToCard      (cardId: Int, groupId: Int): Future[GroupAccess]
+  def setGroupToCard(cardId: Int, groupId: Int): Future[GroupAccess]
 
-  def kickFromGroup       (cardId: Int, groupId: Int): Future[Int]
+  def kickFromGroup(cardId: Int, groupId: Int): Future[Int]
 
-  def createGroupForCards (cardsId: Seq[Int], access: Boolean): Future[Seq[GroupAccess]]
+  def createGroupForCards(cardsId: Seq[Int], access: Boolean): Future[Seq[GroupAccess]]
 
-  def setGroupToCards     (cardsId: Seq[Int], groupId: Int): Future[Seq[GroupAccess]]
+  def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[GroupAccess]]
 
   def getGroup(groupId: Int): Future[Group]
 
@@ -60,7 +60,7 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
 
   def addEmptyGroup(access: Boolean): Future[Group] = {
     db.run(
-      (groups returning groups.map(_.id) into ((group, id) => group.copy(id=Some(id)))) += Group(None, access)
+      (groups returning groups.map(_.id) into ((group, id) => group.copy(id = Some(id)))) += Group(None, access)
     )
   }
 

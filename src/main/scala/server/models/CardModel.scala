@@ -3,6 +3,7 @@ package server.models
 import server.Card
 
 trait CardModel extends DatabaseModel {
+
   import profile.api._
 
   final class CardTable(tag: Tag) extends Table[Card](tag, "card") {
