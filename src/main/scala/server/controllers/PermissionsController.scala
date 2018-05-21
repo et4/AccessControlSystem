@@ -3,9 +3,9 @@ package server.controllers
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives.{complete, get, parameters, path, _}
 import akka.http.scaladsl.server.Route
-import server.services.{CardService, CardServiceImpl, GroupService}
+import server.services.{CardService, GroupService}
 
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 
 
 class PermissionsController(cardManager: CardService, groupService: GroupService) extends Controller {
@@ -13,9 +13,10 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("setIndividualAccess") {
       get {
         parameters('cardId.as[String], 'access.as[Boolean]) { (cardId, access) =>
-          complete {
-            cardManager.setIndividualAccess(cardId.toInt, access)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(cardManager.setIndividualAccess(cardId.toInt, access)) { _ =>
+            complete {
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
@@ -24,9 +25,10 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("setGroupAccess") {
       get {
         parameters('groupId.as[String], 'access.as[Boolean]) { (groupId, access) =>
-          complete {
-            groupService.setGroupAccess(groupId.toInt, access)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(groupService.setGroupAccess(groupId.toInt, access)) { _ =>
+            complete {
+              HttpResponse(StatusCodes.OK)
+            }
           }
         }
       }
@@ -34,9 +36,10 @@ class PermissionsController(cardManager: CardService, groupService: GroupService
     path("addEmptyGroup") {
       get {
         parameters('access.as[Boolean]) { (access) =>
-          complete {
-            groupService.addEmptyGroup(access)
-            HttpResponse(StatusCodes.OK)
+          onSuccess(groupService.addEmptyGroup(access)) { value =>
+            complete {
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(value))
+            }
           }
         }
       }

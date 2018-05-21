@@ -1,7 +1,6 @@
 package server.controllers
 
 import java.sql.Timestamp
-import java.time.Instant
 
 import _root_.server.services.{CardService, LoggerService}
 import akka.http.scaladsl.model._
@@ -15,7 +14,7 @@ class TurnstileController(cardManager: CardService, loggerService: LoggerService
         parameters('cardId.as[String], 'date.as[String], 'event.as[String]) { (cardId, date, event) =>
           onSuccess(cardManager.hasAccess(cardId.toInt)) { value =>
             complete {
-              loggerService.log(cardId.toInt, Timestamp.from(Instant.ofEpochMilli(date.toLong)), event, value)
+              loggerService.log(cardId.toInt, new Timestamp(date.toLong), event, value)
               if (value)
                 HttpResponse(StatusCodes.OK)
               else
