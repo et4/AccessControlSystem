@@ -49,8 +49,8 @@ class TurnstileService extends Service {
 
   def eventTypeToString(eventType: TurnstileEvent): String = {
     eventType match {
-      case event: EntranceEvent => event.eventName
-      case event: ExitEvent => event.eventName
+      case event: EntranceEvent => "IN"
+      case event: ExitEvent => "OUT"
       case _ => ""
     }
   }

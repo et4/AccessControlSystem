@@ -16,12 +16,23 @@ class LogService extends Service {
         "toDateTime" -> toDateTime.toString,
         "times" -> times.toString))))
 
-  def getTimeInside(cardId: Int, fromDateTime: Long, toDateTime: Long): Future[HttpResponse] =
-    Http().singleRequest(HttpRequest(HttpMethods.GET,
-      Uri(uri + "/getTimeInside").withQuery(Query(
-        "cardId" -> cardId.toString,
-        "fromDateTime" -> fromDateTime.toString,
-        "toDateTime" -> toDateTime.toString))))
+  def getTimeInside(cardId: Int, fromDateTime: Long, toDateTime: Long): Seq[String] = {
+    val responseFuture: Future[HttpResponse] =
+      Http().singleRequest(HttpRequest(HttpMethods.GET,
+        Uri(uri + "/getTimeInside").withQuery(Query(
+          "cardId" -> cardId.toString,
+          "fromDateTime" -> fromDateTime.toString,
+          "toDateTime" -> toDateTime.toString))))
+
+    var ids = Seq.empty[String]
+    responseFuture.onComplete {
+      case Success(res) =>
+        val ids = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
+      case _ =>
+        sys.error("something wrong")
+    }
+    ids
+  }
 
   def getComeInLogs: Seq[String] = {
     val responseFuture: Future[HttpResponse] = Http().singleRequest(HttpRequest(HttpMethods.GET,
