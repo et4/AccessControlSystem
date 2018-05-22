@@ -16,7 +16,7 @@ docker-compose -f src/main/resources/docker-compose.yml up
 
   curl 0.0.0.0:8182/getAllCards
   
-  * __Проверить имеет ли доступ карта__
+* __Проверить имеет ли доступ карта__
 
   curl 0.0.0.0:8182/hasAccess?cardId=
 
@@ -56,7 +56,7 @@ docker-compose -f src/main/resources/docker-compose.yml up
   
   curl 0.0.0.0:8182/setGroupToCards?cardIds=&groupId=  
   
-  * __Создание новой группы и добавление карт в нее__
+* __Создание новой группы и добавление карт в нее__
 
   id карт передаются разделенными через ";"
   
