@@ -34,7 +34,7 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
-        "date" -> Instant.ofEpochMilli(11).toString,
+        "date" -> "11",
         "event" -> "IN"))) ~> Route.seal(routes) ~> check {
       status shouldEqual StatusCodes.OK
     }
@@ -43,12 +43,12 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
   "Get /action" should "check not existing permissions" in new Setup {
     val id = 2
     (cardManager.hasAccess _).expects(id).returning(Future.successful(false))
-    (loggerService.log _).expects(id, new Timestamp(11), "IN", true)
-      .returning(Future.successful(Log(id, new Timestamp(11), "IN", true)))
+    (loggerService.log _).expects(id, new Timestamp(11), "IN", false)
+      .returning(Future.successful(Log(id, new Timestamp(11), "IN", false)))
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
-        "date" -> Instant.ofEpochMilli(11).toString,
+        "date" -> "11",
         "event" -> "IN"))) ~> Route.seal(routes) ~> check {
       status shouldEqual StatusCodes.Forbidden
     }
