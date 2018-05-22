@@ -34,7 +34,7 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
-        "date" -> Instant.now().getEpochSecond.toString,
+        "date" -> Instant.ofEpochMilli(11).toString,
         "event" -> "IN"))) ~> Route.seal(routes) ~> check {
       status shouldEqual StatusCodes.OK
     }
@@ -48,7 +48,7 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
-        "date" -> Instant.now().getEpochSecond.toString,
+        "date" -> Instant.ofEpochMilli(11).toString,
         "event" -> "IN"))) ~> Route.seal(routes) ~> check {
       status shouldEqual StatusCodes.Forbidden
     }
