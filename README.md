@@ -77,3 +77,7 @@ docker-compose -f src/main/resources/docker-compose.yml up
 * __Получение всех логов выхода__
 
   curl 0.0.0.0:8182/getComeOutLogs
+  
+* __Получение всех логов карты__
+
+  curl 0.0.0.0:8182/getLogs?cardId=
