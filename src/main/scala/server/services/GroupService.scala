@@ -10,23 +10,23 @@ import scala.concurrent.Future
 trait GroupService {
   def addEmptyGroup(access: Boolean): Future[Group]
 
-  def setGroupAccess(groupId: Int, access: Boolean): Future[Group]
+  def setGroupAccess(groupId: Int, access: Boolean): Future[Option[Group]]
 
-  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[GroupAccess]
+  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[Option[GroupAccess]]
 
-  def setGroupToCard(cardId: Int, groupId: Int): Future[GroupAccess]
+  def setGroupToCard(cardId: Int, groupId: Int): Future[Option[GroupAccess]]
 
   def kickFromGroup(cardId: Int, groupId: Int): Future[Int]
 
-  def createGroupForCards(cardsId: Seq[Int], access: Boolean): Future[Seq[GroupAccess]]
+  def createGroupForCards(cardsId: Seq[Int], access: Boolean): Future[Seq[Option[GroupAccess]]]
 
-  def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[GroupAccess]]
+  def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[Option[GroupAccess]]]
 
-  def getGroup(groupId: Int): Future[Group]
+  def getGroup(groupId: Int): Future[Option[Group]]
 
-  def getGroups: Future[Seq[Group]]
+  def getAllGroups: Future[Seq[Group]]
 
-  def getGroupAccess(cardId: Int, groupId: Int): Future[GroupAccess]
+  def getGroupAccess(cardId: Int, groupId: Int): Future[Option[GroupAccess]]
 }
 
 class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Database)
@@ -34,21 +34,21 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
 
   import profile.api._
 
-  def getGroups: Future[Seq[Group]] = {
+  def getAllGroups: Future[Seq[Group]] = {
     db.run(groups.result)
   }
 
-  def getGroup(groupId: Int): Future[Group] = {
-    db.run(groups.filter(_.id === groupId.bind).result.head)
+  def getGroup(groupId: Int): Future[Option[Group]] = {
+    db.run(groups.filter(_.id === groupId.bind).result.headOption)
   }
 
-  def getGroupAccess(cardId: Int, groupId: Int): Future[GroupAccess] = {
+  def getGroupAccess(cardId: Int, groupId: Int): Future[Option[GroupAccess]] = {
     db.run(
       groupsAccess
         .filter(_.groupId === groupId.bind)
         .filter(_.cardId === cardId.bind)
         .result
-        .head
+        .headOption
     )
   }
 
@@ -62,7 +62,7 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
     )
   }
 
-  def createGroupForCards(cardsId: Seq[Int], access: Boolean): Future[Seq[GroupAccess]] = {
+  def createGroupForCards(cardsId: Seq[Int], access: Boolean): Future[Seq[Option[GroupAccess]]] = {
     val futureGroup: Future[Group] = addEmptyGroup(access)
     futureGroup.map(
       group =>
@@ -73,7 +73,7 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
     ).flatten
   }
 
-  def setGroupAccess(groupId: Int, access: Boolean): Future[Group] = {
+  def setGroupAccess(groupId: Int, access: Boolean): Future[Option[Group]] = {
     db.run(
       groups
         .filter(_.id === groupId.bind)
@@ -83,29 +83,29 @@ class GroupServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databa
           groups
             .filter(_.id === groupId.bind)
             .result
-            .head
+            .headOption
         )
     )
   }
 
-  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[GroupAccess] = {
+  def setExceptionalAccess(cardId: Int, groupId: Int, access: String): Future[Option[GroupAccess]] = {
     db.run(
       groupsAccess
         .filter(_.groupId === groupId.bind)
         .filter(_.cardId === cardId.bind)
         .map(_.access)
         .update(access)
-    ).map[GroupAccess](_ => GroupAccess(cardId, groupId, access))
+    ).map[Option[GroupAccess]](value => if (value == 0) None else Some(GroupAccess(cardId, groupId, access)))
   }
 
-  def setGroupToCard(cardId: Int, groupId: Int): Future[GroupAccess] = {
+  def setGroupToCard(cardId: Int, groupId: Int): Future[Option[GroupAccess]] = {
     val groupAccess = GroupAccess(cardId, groupId, "DEFAULT")
     db.run(
       groupsAccess.insertOrUpdate(groupAccess)
-    ).map[GroupAccess](_ => groupAccess)
+    ).map[Option[GroupAccess]](value => if (value ==0) None else Some(groupAccess))
   }
 
-  def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[GroupAccess]] = {
+  def setGroupToCards(cardsId: Seq[Int], groupId: Int): Future[Seq[Option[GroupAccess]]] = {
     Future.traverse(cardsId)(setGroupToCard(_, groupId))
   }
 

@@ -49,5 +49,29 @@ class LoggerController(loggerService: LoggerService) extends Controller {
           }
         }
       }
+    } ~
+    path("getLogs") {
+      get {
+        parameters('cardId.as[Int]) { (cardId) =>
+          onSuccess(loggerService.getLogsByCard(cardId, All).map(_.mkString(";"))) { logs =>
+            complete {
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(logs))
+            }
+          }
+        }
+      } ~ get {
+        parameters('cardId.as[Int], 'event.as[String]) { (cardId, event) =>
+          val ev = event.toUpperCase match {
+            case "IN" => In
+            case "OUT" => Out
+            case "ALL" => All
+          }
+          onSuccess(loggerService.getLogsByCard(cardId, ev).map(_.mkString(";"))) { logs =>
+            complete {
+              HttpResponse(StatusCodes.OK, entity = HttpEntity(logs))
+            }
+          }
+        }
+      }
     }
 }

@@ -23,9 +23,9 @@ trait LoggerService {
 
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]]
 
-  def getLogsByCard(cardId: Int): Future[Seq[Log]]
+  def getLogsByCard(cardId: Int, queryFilter: QueryFilter): Future[Seq[Log]]
 
-  def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Iterable[Int]]
+  def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Seq[Int]]
 
   def getTimeInside(cardId: Int, fromDateTime: Timestamp, toDateTime: Timestamp): Future[Long]
 }
@@ -42,16 +42,21 @@ class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBacke
   def getLogs(queryFilter: QueryFilter): Future[Seq[Log]] = {
     queryFilter match {
       case All => db.run(logs.result)
-      case In => db.run(logs.filter(_.eventType === "IN".bind).result)
-      case Out => db.run(logs.filter(_.eventType === "OUT".bind).result)
+      case In => db.run(logs.filter(_.eventType === "IN").result)
+      case Out => db.run(logs.filter(_.eventType === "OUT").result)
     }
   }
 
-  def getLogsByCard(cardId: Int): Future[Seq[Log]] = {
-    db.run(logs.filter(_.cardId === cardId.bind).result)
+  def getLogsByCard(cardId: Int, queryFilter: QueryFilter): Future[Seq[Log]] = {
+    val logsForCard = logs.filter(_.cardId === cardId.bind)
+    queryFilter match {
+      case All => db.run(logsForCard.result)
+      case In => db.run(logsForCard.filter(_.eventType === "IN").result)
+      case Out => db.run(logsForCard.filter(_.eventType === "OUT").result)
+    }
   }
 
-  def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Iterable[Int]] = {
+  def getAnomalies(fromDateTime: Timestamp, toDateTime: Timestamp, times: Int): Future[Seq[Int]] = {
     db.run(
       logs
         .filter(_.success === false)
@@ -87,6 +92,6 @@ class DatabaseLoggerServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBacke
         .filter(log => fromDateTime.bind <= log.dateTime && log.dateTime <= toDateTime.bind)
         .sortBy(_.dateTime)
         .result
-    ).map[Long](cardLogs => if (cardLogs.isEmpty) 0L else addClosingBounds(cardLogs))
+    ).map[Long](cardLogs => { if (cardLogs.isEmpty) 0L else addClosingBounds(cardLogs) })
   }
 }
