@@ -27,7 +27,7 @@ class LogService extends Service {
     var ids = Seq.empty[String]
     responseFuture.onComplete {
       case Success(res) =>
-        val ids = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
+        ids = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
       case _ =>
         sys.error("something wrong")
     }
@@ -41,7 +41,8 @@ class LogService extends Service {
     var ids = Seq.empty[String]
     responseFuture.onComplete {
       case Success(res) =>
-        ids = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
+        val t = Await.result(Unmarshal(res.entity).to[String], timeout).split(";")
+        ids = t
       case _ =>
         sys.error("something wrong")
     }
