@@ -47,6 +47,7 @@ class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databas
          z._2.map {
            case (Some("GRANTED"), _) => Some(true)
            case (Some("FORBIDDEN"), _) => Some(false)
+           case (Some("FORBIDDEN"), Some(false)) => Some(false)
            case (Some("DEFAULT"), Some(hasAccess)) => Some(hasAccess)
            case (None, None) => None
          }.foldLeft[Option[Boolean]](None) {
