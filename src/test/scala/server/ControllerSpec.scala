@@ -1,5 +1,6 @@
 package server
 
+import java.sql.Timestamp
 import java.time.Instant
 
 import akka.http.scaladsl.model.Uri.Query
@@ -28,6 +29,8 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
   "Get /action" should "check existing permissions" in new Setup {
     val id = 1
     (cardManager.hasAccess _).expects(id).returning(Future.successful(true))
+    (loggerService.log _).expects(id, new Timestamp(11), "IN", true)
+      .returning(Future.successful(Log(id, new Timestamp(11), "IN", true)))
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
@@ -40,6 +43,8 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
   "Get /action" should "check not existing permissions" in new Setup {
     val id = 2
     (cardManager.hasAccess _).expects(id).returning(Future.successful(false))
+    (loggerService.log _).expects(id, new Timestamp(11), "IN", true)
+      .returning(Future.successful(Log(id, new Timestamp(11), "IN", true)))
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
