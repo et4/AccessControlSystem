@@ -8,7 +8,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait CardService {
-  def hasAccess(cardId: Int): Future[Boolean]
+  def hasAccess(cardId: Int): Future[Option[Boolean]]
 
   def setIndividualAccess(cardId: Int, access: Boolean): Future[Option[Card]]
 
@@ -38,18 +38,18 @@ class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databas
     )
   }
 
-  def hasAccess(cardId: Int): Future[Boolean] = {
+  def hasAccess(cardId: Int): Future[Option[Boolean]] = {
     cardAccessData(cardId)
       .map(_.unzip3)
       .map(x => (x._1, x._2 zip x._3))
       .map(z =>
-        (z._1.head,
+        (z._1.headOption,
          z._2.map {
            case (Some("GRANTED"), _) => Some(true)
            case (Some("FORBIDDEN"), _) => Some(false)
            case (Some("DEFAULT"), Some(hasAccess)) => Some(hasAccess)
            case (None, None) => None
-         }.reduce[Option[Boolean]] {
+         }.foldLeft[Option[Boolean]](None) {
            case (Some(a), Some(b)) => Some(a || b)
            case (Some(a), None) => Some(a)
            case (None, Some(b)) => Some(b)
@@ -58,8 +58,9 @@ class CardServiceImpl(val profile: JdbcProfile)(implicit db: JdbcBackend.Databas
         )
       )
       .map {
-        case (_, Some(access)) => access
-        case (access, None) => access
+        case (Some(_), Some(access)) => Some(access)
+        case (Some(access), None) => Some(access)
+        case (None, None) => None
     }
   }
 

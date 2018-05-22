@@ -23,32 +23,38 @@ class GroupServiceTest extends FutureTest with DatabaseTest {
 
   "GroupService.createGroupForCards" should "create group access for every card" in {
     val eventualAccesses = groupService.createGroupForCards(Seq(1, 2, 3, 4), false)
-    val groupId = Await.result(eventualAccesses.map(_.head.groupId), 5.seconds)
-    eventualAccesses.futureValue should contain (GroupAccess(1, groupId, "DEFAULT"))
-    eventualAccesses.futureValue should contain (GroupAccess(2, groupId, "DEFAULT"))
-    eventualAccesses.futureValue should contain (GroupAccess(3, groupId, "DEFAULT"))
-    eventualAccesses.futureValue should contain (GroupAccess(4, groupId, "DEFAULT"))
+    val groupId = Await.result(eventualAccesses.map(_.head.get.groupId), 5.seconds)
+    eventualAccesses.futureValue should contain (Some(GroupAccess(1, groupId, "DEFAULT")))
+    eventualAccesses.futureValue should contain (Some(GroupAccess(2, groupId, "DEFAULT")))
+    eventualAccesses.futureValue should contain (Some(GroupAccess(3, groupId, "DEFAULT")))
+    eventualAccesses.futureValue should contain (Some(GroupAccess(4, groupId, "DEFAULT")))
+  }
+
+  "GroupService.setExceptionalAccess" should "work correct for invalid id" in {
+    groupService
+      .setExceptionalAccess(-1, 1, "FORBIDDEN")
+      .futureValue should be (None)
   }
 
   "GroupService.setExceptionalAccess" should "set exceptional access" in {
     groupService
       .setExceptionalAccess(3, 1, "FORBIDDEN")
       .flatMap(_ => groupService.getGroupAccess(3, 1))
-      .futureValue should be (GroupAccess(3,1,"FORBIDDEN"))
+      .futureValue should be (Some(GroupAccess(3,1,"FORBIDDEN")))
 
     groupService
       .setExceptionalAccess(3, 1, "GRANTED")
       .flatMap(_ => groupService.getGroupAccess(3, 1))
-      .futureValue should be (GroupAccess(3,1,"GRANTED"))
+      .futureValue should be (Some(GroupAccess(3,1,"GRANTED")))
 
     groupService
       .setExceptionalAccess(3, 1, "DEFAULT")
       .flatMap(_ => groupService.getGroupAccess(3, 1))
-      .futureValue should be (GroupAccess(3,1,"DEFAULT"))
+      .futureValue should be (Some(GroupAccess(3,1,"DEFAULT")))
   }
 
   "GroupService.kickFromGroup" should "kick card from group" in {
-    groupService.getGroupAccess(3, 1).futureValue should be (GroupAccess(3, 1, "DEFAULT"))
+    groupService.getGroupAccess(3, 1).futureValue should be (Some(GroupAccess(3, 1, "DEFAULT")))
     groupService
       .kickFromGroup(3, 1)
       .map(_ => groupService.getGroupAccess(3, 1))

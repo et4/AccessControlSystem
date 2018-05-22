@@ -1,6 +1,6 @@
 package server
 
-import java.time.Instant
+import java.sql.Timestamp
 
 import akka.http.scaladsl.model.Uri.Query
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, StatusCodes, Uri}
@@ -27,24 +27,28 @@ class ControllerSpec extends FlatSpecLike with ScalatestRouteTest with Matchers 
 
   "Get /action" should "check existing permissions" in new Setup {
     val id = 1
-    (cardManager.hasAccess _).expects(id).returning(Future.successful(true))
+    (cardManager.hasAccess _).expects(id).returning(Future.successful(Some(true)))
+    (loggerService.log _).expects(id, new Timestamp(11), "IN", true)
+      .returning(Future.successful(Log(id, new Timestamp(11), "IN", true)))
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
-        "date" -> Instant.now().toString,
-        "event" -> "exit"))) ~> Route.seal(routes) ~> check {
+        "date" -> "11",
+        "event" -> "IN"))) ~> Route.seal(routes) ~> check {
       status shouldEqual StatusCodes.OK
     }
   }
 
   "Get /action" should "check not existing permissions" in new Setup {
     val id = 2
-    (cardManager.hasAccess _).expects(id).returning(Future.successful(false))
+    (cardManager.hasAccess _).expects(id).returning(Future.successful(Some(false)))
+    (loggerService.log _).expects(id, new Timestamp(11), "IN", false)
+      .returning(Future.successful(Log(id, new Timestamp(11), "IN", false)))
     HttpRequest(HttpMethods.GET,
       Uri("http://localhost:8182/action").withQuery(Query(
         "cardId" -> id.toString,
-        "date" -> Instant.now().toString,
-        "event" -> "exit"))) ~> Route.seal(routes) ~> check {
+        "date" -> "11",
+        "event" -> "IN"))) ~> Route.seal(routes) ~> check {
       status shouldEqual StatusCodes.Forbidden
     }
   }

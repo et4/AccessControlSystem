@@ -37,20 +37,36 @@ class TurnstileService extends Service {
       Http().singleRequest(HttpRequest(HttpMethods.GET,
         Uri(uri + "/getAllCards")))
 
-    var cardsId = "1"
+    var cardsIds = "1"
     responseFuture.onComplete {
       case Success(res) =>
-        cardsId = Await.result(Unmarshal(res.entity).to[String], timeout)
+        cardsIds = Await.result(Unmarshal(res.entity).to[String], timeout)
       case _ =>
         sys.error("something wrong")
     }
-    cardsId
+    cardsIds
+  }
+
+  def requestAccess(): Boolean = {
+
+    val responseFuture: Future[HttpResponse] =
+      Http().singleRequest(HttpRequest(HttpMethods.GET,
+        Uri(uri + "/hasAccess")))
+
+    var access = false
+    responseFuture.onComplete {
+      case Success(res) =>
+        access = Await.result(Unmarshal(res.entity).to[String], timeout).toBoolean
+      case _ =>
+        sys.error("something wrong")
+    }
+    access
   }
 
   def eventTypeToString(eventType: TurnstileEvent): String = {
     eventType match {
-      case event: EntranceEvent => event.eventName
-      case event: ExitEvent => event.eventName
+      case event: EntranceEvent => "IN"
+      case event: ExitEvent => "OUT"
       case _ => ""
     }
   }

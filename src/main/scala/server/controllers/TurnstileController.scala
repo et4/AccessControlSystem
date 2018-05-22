@@ -14,11 +14,16 @@ class TurnstileController(cardManager: CardService, loggerService: LoggerService
         parameters('cardId.as[String], 'date.as[String], 'event.as[String]) { (cardId, date, event) =>
           onSuccess(cardManager.hasAccess(cardId.toInt)) { value =>
             complete {
-              loggerService.log(cardId.toInt, new Timestamp(date.toLong), event, value)
-              if (value)
-                HttpResponse(StatusCodes.OK)
-              else
-                HttpResponse(StatusCodes.Forbidden)
+              value match {
+                case Some(v) => {
+                  loggerService.log(cardId.toInt, new Timestamp(date.toLong), event, v)
+                  if (v)
+                    HttpResponse(StatusCodes.OK)
+                  else
+                    HttpResponse(StatusCodes.Forbidden)
+                }
+                case None => HttpResponse(StatusCodes.NotFound)
+              }
             }
           }
         }
@@ -29,7 +34,10 @@ class TurnstileController(cardManager: CardService, loggerService: LoggerService
       parameters('cardId.as[String]) { cardId =>
         onSuccess(cardManager.hasAccess(cardId.toInt)) { value =>
           complete {
-            HttpResponse(StatusCodes.OK, entity = value.toString)
+            value match {
+              case Some(v) => HttpResponse(StatusCodes.OK, entity = v.toString)
+              case None => HttpResponse(StatusCodes.NotFound)
+            }
           }
         }
       }
