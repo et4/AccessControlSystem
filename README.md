@@ -81,3 +81,7 @@ docker-compose -f src/main/resources/docker-compose.yml up
 * __Получение всех логов карты__
 
   0.0.0.0:8182/getLogs?cardId=
+  
+* __Получение IN/OUT логов карты__
+
+  0.0.0.0:8182/getLogs?cardId=&event=
